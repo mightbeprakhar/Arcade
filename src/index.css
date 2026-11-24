@@ -1,0 +1,52 @@
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/space-grotesk/500.css';
+@import '@fontsource/space-grotesk/700.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import 'katex/dist/katex.min.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --series-1: #0aa3be;
+  --series-2: #ec4899;
+  --series-3: #c97a0a;
+  --series-4: #8b5cf6;
+  color-scheme: dark;
+}
+
+html { font-size: 16px; background: #07090f; }
+html.presenter { font-size: 23px; } /* text-sm ≈ 20px: projector-safe minimum */
+body {
+  @apply bg-ink-950 text-slate-100 font-sans antialiased;
+  min-height: 100vh;
+  background-image:
+    radial-gradient(1200px 600px at 10% -10%, rgba(34, 211, 238, 0.08), transparent 60%),
+    radial-gradient(900px 500px at 110% 10%, rgba(244, 114, 182, 0.07), transparent 60%);
+  background-attachment: fixed;
+}
+
+h1, h2, h3, h4 { @apply font-display tracking-tight; }
+
+.katex { font-size: 1.15em; }
+.katex-display { margin: 0.4em 0; overflow-x: auto; overflow-y: hidden; padding: 0.15em 0; }
+
+@layer components {
+  .card { @apply rounded-2xl border border-ink-700 bg-ink-900/80 p-5 shadow-lg shadow-black/30; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-semibold transition
+    focus:outline-none focus-visible:ring-4 focus-visible:ring-neon-cyan/50 disabled:opacity-40 disabled:cursor-not-allowed; }
+  .btn-primary { @apply btn bg-neon-cyan text-ink-950 hover:brightness-110 active:scale-[0.98]; }
+  .btn-ghost { @apply btn border border-ink-600 bg-ink-800 text-slate-100 hover:bg-ink-700 active:scale-[0.98]; }
+  .chip { @apply inline-flex items-center gap-1.5 rounded-full border border-ink-600 bg-ink-800 px-3 py-1 text-sm font-semibold; }
+  .label { @apply text-sm font-semibold uppercase tracking-wider text-slate-400; }
+  .kbd { @apply rounded-md border border-ink-600 bg-ink-800 px-1.5 py-0.5 font-mono text-sm text-slate-300; }
+}
+
+/* Range inputs: big thumbs for projector use */
+input[type='range'] { @apply w-full cursor-pointer accent-neon-cyan; height: 1.75rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
