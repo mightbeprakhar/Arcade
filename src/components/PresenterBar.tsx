@@ -4,14 +4,10 @@ export function PresenterBar({
   onNext,
   onPrev,
   onReset,
-  canPrev,
-  canNext,
 }: {
   onNext: () => void;
   onPrev: () => void;
   onReset: () => void;
-  canPrev: boolean;
-  canNext: boolean;
 }) {
   const { presenter, togglePresenter } = usePresenter();
   return (
@@ -21,7 +17,7 @@ export function PresenterBar({
           ← <span className="hidden sm:inline">Back</span> <span className="kbd hidden md:inline">←</span>
         </button>
         <button className="btn-primary px-4 py-2" onClick={onNext} aria-label="Next (Right arrow or Space)">
-          <span className="hidden sm:inline">{canNext ? 'Next' : 'Reveal'}</span> → <span className="kbd hidden md:inline">Space</span>
+          <span className="hidden sm:inline">Next</span> → <span className="kbd hidden md:inline">Space</span>
         </button>
         <div className="ml-auto flex flex-wrap items-center gap-2">
           <button className="btn-ghost px-3 py-2" onClick={onReset} aria-label="Reset game (R)">
@@ -40,7 +36,6 @@ export function PresenterBar({
             <span className="sm:hidden">Pres.</span> <span className="kbd hidden md:inline">P</span>
           </button>
         </div>
-        <span className="sr-only">{canPrev ? '' : 'At first stage'}</span>
       </div>
     </div>
   );

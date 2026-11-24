@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { BuildProvider, useBuildRegistry, usePresenter, toggleFullscreen } from '../state/presenter';
 import { StepNav } from './StepNav';
 import { PresenterBar } from './PresenterBar';
@@ -131,20 +131,12 @@ export function GameShell({
             </div>
           </header>
           <main className="mt-6 flex-1">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={stage.id}
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.25 }}
-              >
-                {stage.render()}
-              </motion.div>
-            </AnimatePresence>
+            <motion.div key={stage.id} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
+              {stage.render()}
+            </motion.div>
           </main>
         </div>
-        <PresenterBar onNext={next} onPrev={prev} onReset={reset} canPrev={index > 0} canNext={index < stages.length - 1} />
+        <PresenterBar onNext={next} onPrev={prev} onReset={reset} />
       </BuildProvider>
     </StageContext.Provider>
   );
