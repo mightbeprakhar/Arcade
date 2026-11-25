@@ -4,14 +4,22 @@ import { SectionTitle, Toggle } from '../../components/ui';
 import { NextStageButton } from '../../components/GameShell';
 import { lin, num, par } from '../../components/texfmt';
 import { useBuildSteps } from '../../state/presenter';
+import { Narration } from '../../components/comic';
 import type { ChickenSolution } from '../../engine/chicken';
 import type { ChickenState } from './ChickenGame';
 import { BRPlot } from './BRPlot';
 
 const LAYERS = ['The payoff matrix', 'Underline best responses', 'Pure Nash equilibria', 'Mixed-strategy equilibrium'];
+/** Plain-language narration for each layer, so the class can follow without the maths. */
+const EXPLAIN = (r: string, c: string) => [
+  `Each cell is (${r}'s payoff, ${c}'s payoff). Blue numbers belong to ${r}, red to ${c}.`,
+  `Fix what the other driver does, then underline your best reply. If ${c} goes straight, ${r} should swerve: losing face beats a crash. If ${c} swerves, ${r} should go straight.`,
+  `Where both numbers are underlined, nobody wants to change their move alone. That's a Nash equilibrium, and Chicken has two of them: someone has to blink, but theory can't say who.`,
+  `If the drivers can't coordinate, each one mixes: they go straight just often enough that the other driver doesn't care what they do. The percentages show that mix.`,
+];
 
 export function ChickenSolve({ st, sol, accent }: { st: ChickenState; sol: ChickenSolution; accent: string }) {
-  const { shown, advance } = useBuildSteps(LAYERS.length, 1);
+  const { shown, advance } = useBuildSteps(LAYERS.length, 1, 0);
   const g = sol.game;
   const P = g.payoffs;
   const R = g.rowPlayer;
@@ -62,33 +70,33 @@ export function ChickenSolve({ st, sol, accent }: { st: ChickenState; sol: Chick
 
   return (
     <div>
-      <SectionTitle kicker="Solve" title={st.asymmetric ? 'Truck vs Car: who should blink?' : 'Two equilibria and a coin flip'} color={accent} />
-      <div className="mb-5 max-w-xl">
-        <Toggle checked={st.asymmetric} onChange={st.setAsymmetric} label="Asymmetric: Truck vs Car" sub="Re-solves everything below from the engine" />
+      <SectionTitle kicker="Solve" title={st.asymmetric ? 'Truck vs car: who should blink?' : 'Two equilibria and a coin flip'} color={accent} />
+      <div className="mb-6 max-w-xl">
+        <Toggle checked={st.asymmetric} onChange={st.setAsymmetric} label="Asymmetric: truck vs car" sub="Re-solves everything below from the engine" />
       </div>
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div className="card">
-          <div className="mb-3 flex flex-wrap items-center gap-2">
-            {LAYERS.map((l, i) => (
-              <span key={l} className={`chip ${i < shown ? 'text-slate-100' : 'text-slate-500'}`} style={i === shown - 1 ? { borderColor: accent, color: accent } : undefined}>
-                {i + 1}. {l}
-              </span>
-            ))}
+          <div className="mb-4 flex flex-wrap items-center gap-3">
+            <span className="chip text-gold">
+              STEP {shown}/{LAYERS.length}
+            </span>
+            <span className="text-xl font-bold">{LAYERS[shown - 1]}</span>
           </div>
           <PayoffMatrix game={g} bestResponses={shown >= 2} nash={shown >= 3} mixed={shown >= 4 ? sol.mixed : null} />
+          <Narration className="mt-6">{EXPLAIN(R, C)[shown - 1]}</Narration>
           {shown < LAYERS.length && (
             <button className="btn-ghost mt-4" onClick={advance}>
-              Next layer <span className="kbd">→</span>
+              NEXT LAYER ▶
             </button>
           )}
           {shown >= 4 && (
             <div className="mt-4">
               <BRPlot sol={sol} />
-              <p className="mt-2 text-center text-base text-slate-300">Best responses cross three times: two pure equilibria and one mixed.</p>
+              <p className="mt-2 text-center text-base text-ink-2">Best responses cross three times: two pure equilibria and one mixed.</p>
             </div>
           )}
         </div>
-        <div className="space-y-5">
+        <div className="space-y-6">
           {shown >= 4 && (
             <>
               <MathBlock key={`m${st.asymmetric}`} title="Mixed strategy by indifference" lines={msne} accent={accent} />
@@ -96,9 +104,7 @@ export function ChickenSolve({ st, sol, accent }: { st: ChickenState; sol: Chick
             </>
           )}
           {shown < 4 && (
-            <div className="card text-lg text-slate-300">
-              Press <span className="kbd">→</span> to build the solution: best responses, then equilibria, then the mixed strategy.
-            </div>
+            <Narration current={false}>Press → to build the solution: best responses, then equilibria, then the mixed strategy. The maths appears here.</Narration>
           )}
         </div>
       </div>

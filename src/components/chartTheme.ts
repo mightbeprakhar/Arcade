@@ -1,11 +1,11 @@
-/** Shared Recharts styling: recessive grid/axes, text in neutral ink, series from validated palette. */
-export const SERIES = ['#0aa3be', '#ec4899', '#c97a0a', '#8b5cf6'];
-export const axis = { stroke: '#475569', tick: { fill: '#cbd5e1', fontSize: 16 }, tickLine: false };
-export const grid = { stroke: '#202840', strokeDasharray: '0', vertical: false };
+/** Recharts on the night screen: Pixelify ticks, faint grid. Series: class/A = blue, rival/B = red, theory = gold (dashed). */
+export const SERIES = { pen: '#5aa7ff', graphite: '#ef5a4b', mark: '#ffcc4d', blue: '#5aa7ff', red: '#ef5a4b', gold: '#ffcc4d', teal: '#47c9a8' };
+export const axis = { stroke: 'rgba(246,240,220,0.35)', tick: { fill: '#d4cdee', fontSize: 20, fontFamily: 'VT323' }, tickLine: false };
+export const grid = { stroke: 'rgba(246,240,220,0.08)', vertical: false };
 export const tooltip = {
-  contentStyle: { background: '#0d111c', border: '1px solid #2e3958', borderRadius: 12, fontSize: 16, color: '#e2e8f0' },
-  labelStyle: { color: '#94a3b8' },
-  itemStyle: { color: '#e2e8f0' },
-  cursor: { stroke: '#64748b', strokeWidth: 1 },
+  contentStyle: { background: '#151233', border: '4px solid #0f0d22', borderRadius: 0, fontSize: 20, color: '#f6f0dc', fontFamily: 'VT323' },
+  labelStyle: { color: '#a39bc9' },
+  itemStyle: { color: '#f6f0dc' },
+  cursor: { stroke: 'rgba(246,240,220,0.35)', strokeWidth: 1 },
 };
-export const legend = { wrapperStyle: { fontSize: 16, color: '#cbd5e1' } };
+export const legend = { wrapperStyle: { fontSize: 16, color: '#d4cdee', fontFamily: 'Pixelify Sans' } };

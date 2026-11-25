@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { T } from '../../components/motion';
 import { SectionTitle, Slider } from '../../components/ui';
 import { NextStageButton } from '../../components/GameShell';
 import { SERIES } from '../../components/chartTheme';
@@ -22,7 +23,7 @@ export function AdSimulate({ accent }: { accent: string }) {
       <SectionTitle kicker="Simulate" title="The Axelrod tournament" color={accent}>
         Every strategy plays every other (and a copy of itself) for {ROUNDS} weeks; scores are averaged over 200 repeats. Then add mistakes.
       </SectionTitle>
-      <div className="grid gap-5 lg:grid-cols-[22rem_1fr]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[22rem_1fr]">
         <div className="space-y-3">
           <Slider label="Noise (execution errors)" value={noise} min={0} max={10} step={1} onChange={setNoise} format={(v) => `${v}%`} />
           <div className="flex flex-wrap gap-2">
@@ -32,8 +33,8 @@ export function AdSimulate({ accent }: { accent: string }) {
             <button className="btn-ghost" onClick={() => setNoise(5)}>
               5% noise
             </button>
-            <button className="btn-primary" onClick={() => setSeed((s) => s + 1)}>
-              ▶ Re-run
+            <button className="btn-ghost" onClick={() => setSeed((s) => s + 1)}>
+              Re-run
             </button>
           </div>
           <div className="card">
@@ -44,42 +45,42 @@ export function AdSimulate({ accent }: { accent: string }) {
                 : `${noise}% noise: one accidental Ad sends Grim into permanent war and TFT into echoing feuds. Always Ad is now #${allAdRank}.`}
             </p>
           </div>
-          <ol className="space-y-1.5">
+          <ol className="space-y-2">
             {table.map((r) => (
-              <li key={r.id} className="flex items-center gap-3 rounded-lg bg-ink-800 px-3 py-2 text-lg">
-                <span className="w-6 font-mono text-slate-400">{r.rank}</span>
-                <span className="flex-1 font-semibold">{r.name}</span>
-                <span className="font-mono">₹{(r.avgPerRound).toFixed(1)}k/wk</span>
+              <li key={r.id} className="flex items-center gap-3 rounded-lg bg-paper px-3 py-2 text-lg">
+                <span className="w-6 font-mono text-ink-3">{r.rank}</span>
+                <span className="flex-1">{r.name}</span>
+                <span className="font-mono text-2xl">₹{(r.avgPerRound).toFixed(1)}k/wk</span>
               </li>
             ))}
           </ol>
         </div>
-        <div className="space-y-5">
+        <div className="space-y-6">
           <div className="card">
             <div className="label mb-2">Tournament total (₹k over all matches)</div>
             <DotPlot rows={table} />
-            <p className="text-base text-slate-300">Always Ad is the pink dot — watch it move as noise rises. Axis is zoomed to the spread of scores.</p>
+            <p className="mt-6 text-base text-ink-2">Always Ad is the gold dot. Watch it move as noise rises. Axis is zoomed to the spread of scores.</p>
           </div>
           <div className="card">
             <div className="mb-2 flex flex-wrap items-center gap-2">
               <span className="label mr-2">Head to head</span>
-              <select className="rounded-lg border border-ink-600 bg-ink-800 px-3 py-2 text-lg" value={a} onChange={(e) => setA(e.target.value)} aria-label="Strategy A">
+              <select className="border-4 border-black bg-deep px-3 py-2 text-lg" value={a} onChange={(e) => setA(e.target.value)} aria-label="Strategy A">
                 {STRATEGIES.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.name}
                   </option>
                 ))}
               </select>
-              <span className="text-slate-400">vs</span>
-              <select className="rounded-lg border border-ink-600 bg-ink-800 px-3 py-2 text-lg" value={b} onChange={(e) => setB(e.target.value)} aria-label="Strategy B">
+              <span className="text-ink-3">vs</span>
+              <select className="border-4 border-black bg-deep px-3 py-2 text-lg" value={b} onChange={(e) => setB(e.target.value)} aria-label="Strategy B">
                 {STRATEGIES.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.name}
                   </option>
                 ))}
               </select>
-              <span className="ml-auto font-mono text-xl">
-                <span className="text-neon-cyan">{match.totalA}</span> : <span className="text-neon-pink">{match.totalB}</span>
+              <span className="ml-auto font-mono text-4xl">
+                <span className="text-blue">{match.totalA}</span> : <span className="text-red">{match.totalB}</span>
               </span>
             </div>
             <CumulativeChart a={match.rounds.map((r) => r.a)} b={match.rounds.map((r) => r.b)} nameA={strategyById(a).name} nameB={strategyById(b).name} />
@@ -105,27 +106,27 @@ function DotPlot({ rows }: { rows: TournamentRow[] }) {
       {rows.map((r) => {
         const pink = r.id === 'alwaysAd';
         return (
-          <div key={r.id} className="grid grid-cols-[9rem_1fr_4.5rem] items-center gap-3 py-1.5" title={`${r.name}: ₹${r.total.toFixed(0)}k`}>
-            <span className={`truncate text-right text-lg ${pink ? 'font-bold text-neon-pink' : 'text-slate-200'}`}>{r.name}</span>
+          <div key={r.id} className="grid grid-cols-[9rem_1fr_4.5rem] items-center gap-3" title={`${r.name}: ₹${r.total.toFixed(0)}k`}>
+            <span className={`truncate text-right text-lg ${pink ? 'text-gold' : 'text-ink'}`}>{r.name}</span>
             <div className="relative h-8">
-              <div className="absolute inset-x-0 top-1/2 h-px bg-ink-600" />
+              <div className="absolute inset-x-0 top-1/2 h-px bg-line2" />
               <motion.div
-                className="absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-ink-900"
-                style={{ background: pink ? SERIES[1] : SERIES[0] }}
+                className="absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-surface"
+                style={{ background: pink ? SERIES.mark : SERIES.pen }}
                 initial={false}
                 animate={{ left: `${x(r.total)}%` }}
-                transition={{ type: 'spring', stiffness: 120, damping: 18 }}
+                transition={T}
               />
             </div>
-            <span className="font-mono text-base text-slate-200">{r.total.toFixed(0)}</span>
+            <span className="font-mono text-2xl text-ink">{r.total.toFixed(0)}</span>
           </div>
         );
       })}
       <div className="grid grid-cols-[9rem_1fr_4.5rem] gap-3">
         <span />
-        <div className="relative h-6 border-t border-ink-600">
+        <div className="relative h-6 border-t border-line2">
           {ticks.map((t) => (
-            <span key={t} className="absolute top-1 -translate-x-1/2 font-mono text-sm text-slate-400" style={{ left: `${x(t)}%` }}>
+            <span key={t} className="absolute top-1 -translate-x-1/2 font-mono text-xl text-ink-3" style={{ left: `${x(t)}%` }}>
               {t.toFixed(0)}
             </span>
           ))}

@@ -1,96 +1,107 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { T } from './motion';
 
-export type VoteOption = { id: string; label: string; sub?: string; color: string };
+export type VoteOption = { id: string; label: string; sub?: string; color?: string };
+
+/** Majority of the counts, or the presenter's tie-break, or null. */
+export function majority(counts: Record<string, number>, tieBreak: string | null) {
+  const max = Math.max(...Object.values(counts));
+  if (max <= 0) return { winner: null as string | null, leaders: [] as string[] };
+  const leaders = Object.keys(counts).filter((k) => counts[k] === max);
+  if (leaders.length === 1) return { winner: leaders[0], leaders };
+  return { winner: tieBreak && leaders.includes(tieBreak) ? tieBreak : null, leaders };
+}
 
 /**
- * Show-of-hands counter. Presenter taps +/− per option; majority becomes the class move.
- * Ties must be broken by the presenter (tap the option's name).
+ * Show-of-hands counter. Presenter taps + / − per option; the majority becomes the class move.
+ * Ties are broken by tapping the option's name. Set showLock={false} and use onChange when a
+ * parent locks several panels with one button.
  */
+const PM =
+  'grid h-9 w-9 place-items-center border-2 border-black bg-panel2 font-pixel text-xs text-ink hover:bg-gold hover:text-black disabled:opacity-40 disabled:hover:bg-panel2 disabled:hover:text-ink';
+
 export function VotePanel({
   title = 'Show of hands',
+  accent,
   options,
   onDecide,
+  onChange,
   decided,
   lockLabel = 'Lock in class move',
+  showLock = true,
 }: {
   title?: string;
   options: VoteOption[];
-  onDecide: (id: string, counts: Record<string, number>) => void;
+  onDecide?: (id: string, counts: Record<string, number>) => void;
+  onChange?: (winner: string | null, counts: Record<string, number>) => void;
   decided?: string | null;
   lockLabel?: string;
+  showLock?: boolean;
+  accent?: string;
 }) {
   const [counts, setCounts] = useState<Record<string, number>>(() => Object.fromEntries(options.map((o) => [o.id, 0])));
   const [tieBreak, setTieBreak] = useState<string | null>(null);
   const total = Object.values(counts).reduce((a, b) => a + b, 0);
-  const max = Math.max(...Object.values(counts));
-  const leaders = options.filter((o) => counts[o.id] === max && max > 0);
-  const winner = leaders.length === 1 ? leaders[0].id : tieBreak && leaders.some((l) => l.id === tieBreak) ? tieBreak : null;
+  const { winner, leaders } = majority(counts, tieBreak);
   const bump = (id: string, d: number) => setCounts((c) => ({ ...c, [id]: Math.max(0, c[id] + d) }));
   const locked = decided != null;
 
+  useEffect(() => {
+    onChange?.(winner, counts);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [winner, counts]);
+
   return (
-    <div className="card">
-      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-        <div className="label">{title}</div>
-        <div className="text-base text-slate-300">
-          {total} hand{total === 1 ? '' : 's'} counted
-        </div>
+    <div className="border-4 border-black bg-panel p-4 shadow-hard halftone-light">
+      <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
+        <h3 className="text-sm" style={{ color: accent ?? '#f6f0dc' }}>
+          {title.toUpperCase()}
+        </h3>
+        <span className="font-pixel text-xs text-ink-3">
+          {total} HAND{total === 1 ? '' : 'S'}
+        </span>
       </div>
-      <div className={`grid gap-3 ${options.length > 2 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>
+      <div className={`grid grid-cols-1 gap-3 ${options.length > 2 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>
         {options.map((o) => {
           const share = total ? counts[o.id] / total : 0;
-          const isWinner = (locked ? decided === o.id : winner === o.id) && (locked || total > 0);
+          const isWinner = locked ? decided === o.id : winner === o.id;
+          const tied = !locked && leaders.length > 1 && leaders.includes(o.id);
           return (
-            <div
-              key={o.id}
-              className="relative overflow-hidden rounded-xl border-2 bg-ink-800 p-3"
-              style={{ borderColor: isWinner ? o.color : '#2e3958' }}
-            >
-              <motion.div
-                className="absolute inset-y-0 left-0 opacity-20"
-                style={{ background: o.color }}
-                animate={{ width: `${share * 100}%` }}
-              />
-              <div className="relative">
-                <button
-                  className="text-left disabled:cursor-default"
-                  disabled={locked || leaders.length < 2 || !leaders.some((l) => l.id === o.id)}
-                  onClick={() => setTieBreak(o.id)}
-                  title="Tap to break a tie"
-                >
-                  <div className="text-xl font-bold" style={{ color: o.color }}>
-                    {o.label}
-                  </div>
-                  {o.sub && <div className="text-sm text-slate-300">{o.sub}</div>}
-                </button>
-                <div className="mt-2 flex items-center gap-2">
-                  <button className="btn-ghost h-12 w-12 text-2xl" onClick={() => bump(o.id, -1)} disabled={locked} aria-label={`Remove a vote for ${o.label}`}>
+            <div key={o.id} className={`relative border-4 bg-deep p-3 ${isWinner ? 'border-gold' : 'border-black'}`}>
+              <button className="block w-full text-left disabled:cursor-default" disabled={!tied} onClick={() => setTieBreak(o.id)}>
+                <div className={`text-2xl font-bold ${isWinner ? 'text-gold' : 'text-ink'}`}>{o.label}</div>
+                {o.sub && <div className="text-sm text-ink-3">{o.sub}</div>}
+                {tied && <div className="text-sm text-gold">Tap to break the tie</div>}
+              </button>
+              <div className="mt-3 flex items-center gap-2">
+                <span className="min-w-[3ch] font-mono text-6xl leading-none">{counts[o.id]}</span>
+                <span className="ml-auto flex gap-2">
+                  <button className={PM} onClick={() => bump(o.id, -1)} disabled={locked} aria-label={`Remove a vote for ${o.label}`}>
                     −
                   </button>
-                  <div className="min-w-[3ch] text-center font-mono text-4xl font-semibold tabular-nums">{counts[o.id]}</div>
-                  <button className="btn-ghost h-12 w-12 text-2xl" onClick={() => bump(o.id, 1)} disabled={locked} aria-label={`Add a vote for ${o.label}`}>
+                  <button className={PM} onClick={() => bump(o.id, 1)} disabled={locked} aria-label={`Add a vote for ${o.label}`}>
                     +
                   </button>
-                  <button className="btn-ghost h-12 px-3 text-base" onClick={() => bump(o.id, 5)} disabled={locked} aria-label={`Add five votes for ${o.label}`}>
+                  <button className={`${PM} w-auto px-2`} onClick={() => bump(o.id, 5)} disabled={locked} aria-label={`Add five votes for ${o.label}`}>
                     +5
                   </button>
-                  <span className="ml-auto font-mono text-lg text-slate-300">{total ? Math.round(share * 100) : 0}%</span>
-                </div>
+                </span>
+              </div>
+              <div className="mt-3 h-3 border-2 border-black bg-panel2">
+                <motion.div className="h-full bg-gold" initial={false} animate={{ width: `${share * 100}%` }} transition={T} />
               </div>
             </div>
           );
         })}
       </div>
-      {!locked && (
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <button className="btn-primary text-lg" disabled={!winner} onClick={() => winner && onDecide(winner, counts)}>
-            {lockLabel}
+      {!locked && showLock && (
+        <div className="mt-4 flex flex-wrap items-center gap-4">
+          <button className="btn-primary" disabled={!winner} onClick={() => winner && onDecide?.(winner, counts)}>
+            {lockLabel.toUpperCase()}
           </button>
-          {leaders.length > 1 && !winner && (
-            <span className="text-base text-neon-amber">It’s a tie — tap an option’s name to break it.</span>
-          )}
-          {total === 0 && <span className="text-base text-slate-400">Count hands with + / −.</span>}
+          {leaders.length > 1 && !winner && <span className="text-lg text-gold">Tie! Tap an option’s name to break it.</span>}
+          {total === 0 && <span className="text-lg text-ink-3">Count hands with + and −.</span>}
         </div>
       )}
     </div>

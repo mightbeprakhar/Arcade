@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { T, T_SLOW } from './motion';
 
 export type TreeEdge = { id: string; label: string; prob?: string; to: TreeNode };
 export type TreeNode = {
@@ -49,8 +50,8 @@ export function GameTree({
   chosen = new Set(),
   values = {},
   playerColors,
-  payoffColors = ['#a3e635', '#f472b6'],
-  accent = '#a3e635',
+  payoffColors = ['#5aa7ff', '#ef5a4b'],
+  accent = '#ffcc4d',
   highlightPath = new Set(),
 }: {
   root: TreeNode;
@@ -74,7 +75,7 @@ export function GameTree({
         const isLive = highlightPath.has(e.id);
         const mx = (from.x + to.x) / 2;
         const my = (from.y + to.y) / 2;
-        const stroke = isPruned ? '#ef4444' : isLive ? '#fbbf24' : isChosen ? accent : '#475569';
+        const stroke = isPruned ? 'rgba(246,240,220,0.3)' : isLive ? '#5aa7ff' : isChosen ? accent : '#a39bc9';
         return (
           <g key={e.id}>
             <motion.line
@@ -85,14 +86,14 @@ export function GameTree({
               stroke={stroke}
               strokeLinecap="round"
               initial={false}
-              animate={{ strokeWidth: isChosen || isLive ? 6 : 3, opacity: isPruned ? 0.35 : 1 }}
+              animate={{ strokeWidth: isChosen || isLive ? 4 : 2, opacity: isPruned ? 0.6 : 1 }}
               strokeDasharray={isPruned ? '8 8' : undefined}
-              transition={{ duration: 0.5 }}
+              transition={T}
             />
             {isPruned && (
-              <motion.g initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} style={{ originX: `${mx}px`, originY: `${my}px` }}>
-                <line x1={mx - 10} y1={my - 10} x2={mx + 10} y2={my + 10} stroke="#ef4444" strokeWidth={4} strokeLinecap="round" />
-                <line x1={mx - 10} y1={my + 10} x2={mx + 10} y2={my - 10} stroke="#ef4444" strokeWidth={4} strokeLinecap="round" />
+              <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={T}>
+                <line x1={mx - 10} y1={my - 10} x2={mx + 10} y2={my + 10} stroke="#ef5a4b" strokeWidth={4} strokeLinecap="round" />
+                <line x1={mx - 10} y1={my + 10} x2={mx + 10} y2={my - 10} stroke="#ef5a4b" strokeWidth={4} strokeLinecap="round" />
               </motion.g>
             )}
             <text
@@ -100,9 +101,9 @@ export function GameTree({
               y={my - 12}
               textAnchor="middle"
               fontSize={19}
-              fontWeight={600}
-              fill={isPruned ? '#94a3b8' : '#e2e8f0'}
-              style={{ paintOrder: 'stroke', stroke: '#0d111c', strokeWidth: 6 }}
+              fontWeight={400}
+              fill={isPruned ? '#a39bc9' : '#f6f0dc'}
+              style={{ paintOrder: 'stroke', stroke: '#1d1a3a', strokeWidth: 6 }}
             >
               {e.label}
               {e.prob ? ` (${e.prob})` : ''}
@@ -114,41 +115,42 @@ export function GameTree({
         if (node.kind === 'terminal') {
           return (
             <g key={node.id}>
-              <circle cx={x} cy={y} r={6} fill="#64748b" />
-              <text x={x + 16} y={y + 7} fontSize={21} fontFamily="JetBrains Mono, monospace" fontWeight={600}>
-                <tspan fill="#94a3b8">(</tspan>
+              <rect x={x - 5} y={y - 5} width={10} height={10} fill="#a39bc9" />
+              <text x={x + 16} y={y + 7} fontSize={21} fontFamily="Pixelify Sans, monospace" fontWeight={700}>
+                <tspan fill="#a39bc9">(</tspan>
                 <tspan fill={payoffColors[0]}>{node.payoff?.[0]}</tspan>
-                <tspan fill="#94a3b8">, </tspan>
+                <tspan fill="#a39bc9">, </tspan>
                 <tspan fill={payoffColors[1]}>{node.payoff?.[1]}</tspan>
-                <tspan fill="#94a3b8">)</tspan>
+                <tspan fill="#a39bc9">)</tspan>
               </text>
             </g>
           );
         }
-        const color = node.kind === 'chance' ? '#fbbf24' : playerColors[node.player ?? ''] ?? '#22d3ee';
+        const color = node.kind === 'chance' ? '#ffcc4d' : playerColors[node.player ?? ''] ?? '#f6f0dc';
         const v = values[node.id];
         return (
           <g key={node.id}>
             {node.kind === 'chance' ? (
-              <rect x={x - 17} y={y - 17} width={34} height={34} rx={6} fill="#0d111c" stroke={color} strokeWidth={4} transform={`rotate(45 ${x} ${y})`} />
+              <rect x={x - 17} y={y - 17} width={34} height={34} rx={6} fill="#151233" stroke={color} strokeWidth={4} transform={`rotate(45 ${x} ${y})`} />
             ) : (
-              <circle cx={x} cy={y} r={17} fill="#0d111c" stroke={color} strokeWidth={4} />
+              <rect x={x - 16} y={y - 16} width={32} height={32} fill="#151233" stroke={color} strokeWidth={4} />
             )}
-            <text x={x} y={y + 40} textAnchor="middle" fontSize={17} fontWeight={700} fill={color} style={{ paintOrder: 'stroke', stroke: '#0d111c', strokeWidth: 5 }}>
+            <text x={x} y={y + 40} textAnchor="middle" fontSize={17} fill={color} style={{ paintOrder: 'stroke', stroke: '#1d1a3a', strokeWidth: 5 }}>
               {node.kind === 'chance' ? 'Nature' : node.player}
             </text>
             {v && (
               <motion.text
                 key={v}
-                initial={{ opacity: 0, y: y - 30 }}
-                animate={{ opacity: 1, y: y - 26 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={T_SLOW}
+                y={y - 26}
                 x={x}
                 textAnchor="middle"
                 fontSize={19}
-                fontWeight={700}
-                fontFamily="JetBrains Mono, monospace"
-                fill="#fbbf24"
-                style={{ paintOrder: 'stroke', stroke: '#0d111c', strokeWidth: 6 }}
+                fontFamily="Pixelify Sans, monospace" fontWeight={700}
+                fill="#ffcc4d"
+                style={{ paintOrder: 'stroke', stroke: '#1d1a3a', strokeWidth: 6 }}
               >
                 {v}
               </motion.text>

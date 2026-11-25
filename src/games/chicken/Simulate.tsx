@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { SectionTitle, Slider, Stat } from '../../components/ui';
+import { PEN, RED, SectionTitle, Slider, Stat } from '../../components/ui';
 import { NextStageButton } from '../../components/GameShell';
 import { SERIES, axis, grid, legend, tooltip } from '../../components/chartTheme';
 import { expectedPayoffs } from '../../engine/bimatrix';
@@ -34,14 +34,14 @@ export function ChickenSimulate({ sol, accent }: { sol: ChickenSolution; accent:
         Set how often each driver goes straight and replay the bridge thousands of times. At the mixed equilibrium the crash rate settles on{' '}
         {pct(sol.crashProb)}.
       </SectionTitle>
-      <div className="grid gap-5 lg:grid-cols-[22rem_1fr]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[22rem_1fr]">
         <div className="space-y-3">
           <Slider label={`${g.rowPlayer}: P(straight)`} value={pA} min={0} max={1} step={0.01} onChange={setPA} format={(v) => pct(v, 0)} />
           <Slider label={`${g.colPlayer}: P(straight)`} value={pB} min={0} max={1} step={0.01} onChange={setPB} format={(v) => pct(v, 0)} />
           <Slider label="Encounters" value={n} min={100} max={20000} step={100} onChange={setN} format={(v) => v.toLocaleString('en-IN')} />
           <div className="flex flex-wrap gap-2">
-            <button className="btn-primary" onClick={() => setSeed((s) => s + 1)}>
-              ▶ Run again
+            <button className="btn-ghost" onClick={() => setSeed((s) => s + 1)}>
+              Run again
             </button>
             <button
               className="btn-ghost"
@@ -54,13 +54,13 @@ export function ChickenSimulate({ sol, accent }: { sol: ChickenSolution; accent:
             </button>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <Stat label="Crash rate" value={pct(sim.crashSeries.at(-1)!.crashRate, 2)} sub={`theory ${pct(pA * pB, 2)}`} color="#fca5a5" />
+            <Stat label="Crash rate" value={pct(sim.crashSeries.at(-1)!.crashRate, 2)} sub={`theory ${pct(pA * pB, 2)}`} color={RED} />
             <Stat label="Crashes" value={sim.counts[1][1].toLocaleString('en-IN')} sub={`of ${n.toLocaleString('en-IN')}`} />
-            <Stat label={`${g.rowPlayer} avg`} value={sim.avgRow.toFixed(2)} sub={`expected ${exp[0].toFixed(2)}`} color="#22d3ee" />
-            <Stat label={`${g.colPlayer} avg`} value={sim.avgCol.toFixed(2)} sub={`expected ${exp[1].toFixed(2)}`} color="#f472b6" />
+            <Stat label={`${g.rowPlayer} avg`} value={sim.avgRow.toFixed(2)} sub={`expected ${exp[0].toFixed(2)}`} color={PEN} />
+            <Stat label={`${g.colPlayer} avg`} value={sim.avgCol.toFixed(2)} sub={`expected ${exp[1].toFixed(2)}`} color={RED} />
           </div>
         </div>
-        <div className="space-y-5">
+        <div className="space-y-6">
           <div className="card">
             <div className="label mb-2">Crash rate as encounters pile up</div>
             <div className="h-64 sm:h-72">
@@ -68,11 +68,11 @@ export function ChickenSimulate({ sol, accent }: { sol: ChickenSolution; accent:
                 <LineChart data={sim.crashSeries} margin={{ top: 10, right: 20, left: 10, bottom: 10 }}>
                   <CartesianGrid {...grid} />
                   <XAxis dataKey="n" type="number" domain={[0, n]} tickCount={6} {...axis} tickFormatter={(v: number) => (v >= 1000 ? `${+(v / 1000).toFixed(1)}k` : String(v))} />
-                  <YAxis {...axis} tickFormatter={(v) => pct(v, 0)} width={60} />
+                  <YAxis {...axis} tickFormatter={(v) => pct(v, 1)} width={64} />
                   <Tooltip {...tooltip} formatter={(v: number) => pct(v, 2)} labelFormatter={(l) => `after ${l} encounters`} />
                   <Legend {...legend} />
-                  <Line type="monotone" dataKey="crashRate" name="Simulated" stroke={SERIES[0]} strokeWidth={2} dot={false} isAnimationActive={false} />
-                  <Line type="monotone" dataKey="theory" name="Theory p·q" stroke={SERIES[1]} strokeWidth={2} strokeDasharray="6 4" dot={false} isAnimationActive={false} />
+                  <Line type="monotone" dataKey="crashRate" name="Simulated" stroke={SERIES.pen} strokeWidth={2} dot={false} isAnimationActive={false} />
+                  <Line type="monotone" dataKey="theory" name="Theory p·q" stroke={SERIES.mark} strokeWidth={2} strokeDasharray="6 4" dot={false} isAnimationActive={false} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -81,7 +81,7 @@ export function ChickenSimulate({ sol, accent }: { sol: ChickenSolution; accent:
             <div className="label mb-1">
               {g.rowPlayer}’s expected payoff for each of its own mixes (given {g.colPlayer} at {pct(pB, 0)})
             </div>
-            <p className="mb-2 text-base text-slate-300">
+            <p className="mb-2 text-base text-ink-2">
               {flat
                 ? `Flat line: when ${g.colPlayer} plays the MSNE, every mix gives ${g.rowPlayer} the same payoff — that indifference is the equilibrium.`
                 : `Move ${g.colPlayer}’s slider to ${pct(sol.mixed.colP1, 0)} and this line goes flat.`}
@@ -93,8 +93,8 @@ export function ChickenSimulate({ sol, accent }: { sol: ChickenSolution; accent:
                   <XAxis dataKey="p" type="number" domain={[0, 1]} ticks={[0, 0.25, 0.5, 0.75, 1]} {...axis} tickFormatter={(v: number) => pct(v, 0)} />
                   <YAxis {...axis} width={60} domain={[(m: number) => Math.floor(m - 0.5), (m: number) => Math.ceil(m + 0.5)]} tickFormatter={(v: number) => v.toFixed(1)} />
                   <Tooltip {...tooltip} formatter={(v: number) => v.toFixed(3)} labelFormatter={(l) => `${g.rowPlayer} straight ${pct(Number(l), 0)}`} />
-                  <ReferenceLine x={pA} stroke="#fbbf24" strokeDasharray="4 4" />
-                  <Line type="linear" dataKey="row" name={`${g.rowPlayer} E[u]`} stroke={SERIES[0]} strokeWidth={2} dot={false} isAnimationActive={false} />
+                  <ReferenceLine x={pA} stroke="rgba(31,29,26,0.35)" strokeDasharray="4 4" />
+                  <Line type="linear" dataKey="row" name={`${g.rowPlayer} E[u]`} stroke={SERIES.pen} strokeWidth={2} dot={false} isAnimationActive={false} />
                 </LineChart>
               </ResponsiveContainer>
             </div>

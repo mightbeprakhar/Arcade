@@ -39,24 +39,27 @@ export function toggleFullscreen() {
 
 /* ---------- Builds: step-by-step reveals that consume → / ← before the stage changes ---------- */
 export type BuildHandler = { next: () => boolean; prev: () => boolean };
-type BuildRegistry = { register: (id: string, h: BuildHandler) => () => void };
+type BuildRegistry = { register: (id: string, h: BuildHandler, order: number) => () => void };
 const BuildContext = createContext<BuildRegistry | null>(null);
 
 export function useBuildRegistry() {
-  const handlers = useRef(new Map<string, BuildHandler>());
-  const register = useCallback((id: string, h: BuildHandler) => {
-    handlers.current.set(id, h);
+  // React mounts children before parents, so insertion order is not screen order.
+  // Each build carries an explicit order; lower runs first (e.g. the diagram before its maths).
+  const handlers = useRef(new Map<string, { h: BuildHandler; order: number; seq: number }>());
+  const seq = useRef(0);
+  const sorted = () => [...handlers.current.values()].sort((a, b) => a.order - b.order || a.seq - b.seq).map((x) => x.h);
+  const register = useCallback((id: string, h: BuildHandler, order: number) => {
+    handlers.current.set(id, { h, order, seq: seq.current++ });
     return () => {
       handlers.current.delete(id);
     };
   }, []);
   const next = useCallback(() => {
-    for (const h of handlers.current.values()) if (h.next()) return true;
+    for (const h of sorted()) if (h.next()) return true;
     return false;
   }, []);
   const prev = useCallback(() => {
-    const list = [...handlers.current.values()].reverse();
-    for (const h of list) if (h.prev()) return true;
+    for (const h of sorted().reverse()) if (h.prev()) return true;
     return false;
   }, []);
   return { registry: { register }, next, prev };
@@ -70,7 +73,7 @@ let buildSeq = 0;
  * A reveal-in-steps counter wired to the presenter keys.
  * Starts at `initial`, → increments until `total`, ← decrements back to `initial`.
  */
-export function useBuildSteps(total: number, initial = 1) {
+export function useBuildSteps(total: number, initial = 1, order = 10) {
   const reg = useContext(BuildContext);
   const [shown, setShown] = useState(Math.min(initial, total));
   const shownRef = useRef(shown);
@@ -97,8 +100,8 @@ export function useBuildSteps(total: number, initial = 1) {
         }
         return false;
       },
-    });
-  }, [reg, initial]);
+    }, order);
+  }, [reg, initial, order]);
   const advance = useCallback(() => setShown((s) => Math.min(totalRef.current, s + 1)), []);
   const showAll = useCallback(() => setShown(totalRef.current), []);
   const reset = useCallback(() => setShown(Math.min(initial, totalRef.current)), [initial]);

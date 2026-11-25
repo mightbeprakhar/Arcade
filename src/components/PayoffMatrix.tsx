@@ -1,20 +1,34 @@
 import { motion } from 'framer-motion';
 import { colBestResponses, pureNash, rowBestResponses, type Bimatrix, type Cell } from '../engine/bimatrix';
 
-const ROW_COLOR = '#22d3ee';
-const COL_COLOR = '#f472b6';
+export const ROW_COLOR = '#5aa7ff'; // player A
+export const COL_COLOR = '#ef5a4b'; // player B
 
 export function fmt(n: number, digits = 2) {
   if (Number.isInteger(n)) return n.toString();
   return n.toFixed(digits).replace(/\.?0+$/, '');
 }
 
+/** Gold pixel frame + NASH tag around an equilibrium cell; pops in when its layer is revealed. */
+export function PenCircle() {
+  return (
+    <motion.span
+      aria-hidden
+      className="pointer-events-none absolute -inset-2 border-4 border-gold"
+      style={{ boxShadow: '4px 4px 0 #0f0d22', outline: '4px solid #0f0d22', outlineOffset: 0 }}
+      initial={{ opacity: 0, scale: 1.15 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+    />
+  );
+}
+
 /**
- * 2x2 bimatrix. Optional layers:
+ * 2x2 bimatrix. Layers:
  *  - bestResponses: underline each player's best-response payoff
- *  - nash: glow pure NE cells
- *  - mixed: show each player's mixing probabilities on the headers
- *  - selected: outline the realised cell
+ *  - nash: circle pure Nash equilibria in red pen
+ *  - mixed: each player's mixing probabilities on the headers
+ *  - selected: the class's realised cell (dashed blue)
  */
 export function PayoffMatrix({
   game,
@@ -23,10 +37,9 @@ export function PayoffMatrix({
   mixed,
   selected,
   format = (n: number) => fmt(n),
-  rowColor = ROW_COLOR,
-  colColor = COL_COLOR,
   highlight,
   compact = false,
+  legend = true,
 }: {
   game: Bimatrix;
   bestResponses?: boolean;
@@ -34,41 +47,35 @@ export function PayoffMatrix({
   mixed?: { rowP1: number; colP1: number } | null;
   selected?: Cell | null;
   format?: (n: number) => string;
-  rowColor?: string;
-  colColor?: string;
   highlight?: Cell[];
   compact?: boolean;
+  legend?: boolean;
 }) {
   const ne = nash ? pureNash(game) : [];
-  const isNE = (r: number, c: number) => ne.some((x) => x.r === r && x.c === c);
-  const isHi = (r: number, c: number) => highlight?.some((x) => x.r === r && x.c === c);
+  const circled = (r: number, c: number) => ne.some((x) => x.r === r && x.c === c) || !!highlight?.some((x) => x.r === r && x.c === c);
   const rowBR = (r: 0 | 1, c: 0 | 1) => bestResponses && rowBestResponses(game, c).includes(r);
   const colBR = (r: 0 | 1, c: 0 | 1) => bestResponses && colBestResponses(game, r).includes(c);
   const prob = (p: number) => `${fmt(p * 100, 1)}%`;
-  const pad = compact ? 'p-3' : 'p-4 sm:p-6';
+  const ul = { textDecoration: 'underline', textUnderlineOffset: 6, textDecorationThickness: 2 } as const;
 
   return (
     <div className="w-full overflow-x-auto">
-      <table className="mx-auto border-separate" style={{ borderSpacing: 6 }}>
+      <table className="mx-auto border-separate" style={{ borderSpacing: compact ? 8 : 12 }}>
         <thead>
           <tr>
             <th />
-            <th colSpan={2} className="pb-1 text-center text-lg font-semibold" style={{ color: colColor }}>
+            <th colSpan={2} className="pb-2 text-center font-pixel text-sm font-normal" style={{ color: COL_COLOR }}>
               {game.colPlayer}
             </th>
           </tr>
           <tr>
-            <th className="pr-2 text-right text-lg font-semibold" style={{ color: rowColor }}>
+            <th className="pr-2 text-right font-pixel text-sm font-normal" style={{ color: ROW_COLOR }}>
               {game.rowPlayer}
             </th>
             {game.colLabels.map((l, c) => (
-              <th key={l} className="min-w-[7.5rem] px-2 pb-1 text-center text-lg font-semibold text-slate-200">
+              <th key={l} className={`${compact ? 'min-w-[6rem]' : 'min-w-[7rem]'} px-2 pb-1 text-center text-xl font-bold text-ink`}>
                 {l}
-                {mixed && (
-                  <div className="font-mono text-base" style={{ color: colColor }}>
-                    {prob(c ? mixed.colP1 : 1 - mixed.colP1)}
-                  </div>
-                )}
+                {mixed && <div className="font-mono text-2xl leading-none" style={{ color: COL_COLOR }}>{prob(c ? mixed.colP1 : 1 - mixed.colP1)}</div>}
               </th>
             ))}
           </tr>
@@ -76,62 +83,44 @@ export function PayoffMatrix({
         <tbody>
           {game.rowLabels.map((rl, r) => (
             <tr key={rl}>
-              <th className="pr-3 text-right text-lg font-semibold text-slate-200">
+              <th className="pr-3 text-right text-xl font-bold text-ink">
                 {rl}
                 {mixed && (
-                  <div className="font-mono text-base" style={{ color: rowColor }}>
+                  <div className="font-mono text-2xl leading-none" style={{ color: ROW_COLOR }}>
                     {prob(r ? mixed.rowP1 : 1 - mixed.rowP1)}
                   </div>
                 )}
               </th>
               {game.colLabels.map((cl, c) => {
                 const [a, b] = game.payoffs[r][c];
-                const neCell = isNE(r, c);
+                const isNE = circled(r, c);
                 const sel = selected && selected.r === r && selected.c === c;
-                const hi = isHi(r, c);
                 return (
-                  <motion.td
+                  <td
                     key={cl}
-                    layout
-                    className={`relative whitespace-nowrap rounded-xl border-2 text-center ${pad}`}
-                    style={{
-                      borderColor: sel ? '#fbbf24' : neCell || hi ? '#a3e635' : '#2e3958',
-                      background: neCell || hi ? 'rgba(163,230,53,0.12)' : '#151b2b',
-                      boxShadow: neCell || hi ? '0 0 28px rgba(163,230,53,0.25)' : undefined,
-                    }}
+                    className={`relative whitespace-nowrap border-4 bg-deep text-center ${compact ? 'p-3' : 'p-6'} ${sel ? 'border-blue' : 'border-black'}`}
                   >
-                    <div className={`font-mono font-semibold tabular-nums ${compact ? 'text-xl' : 'text-2xl sm:text-3xl'}`}>
-                      <span
-                        style={{ color: rowColor, textDecoration: rowBR(r as 0 | 1, c as 0 | 1) ? 'underline' : 'none', textUnderlineOffset: 6, textDecorationThickness: 3 }}
-                      >
-                        {format(a)}
-                      </span>
-                      <span className="text-slate-500">, </span>
-                      <span
-                        style={{ color: colColor, textDecoration: colBR(r as 0 | 1, c as 0 | 1) ? 'underline' : 'none', textUnderlineOffset: 6, textDecorationThickness: 3 }}
-                      >
-                        {format(b)}
-                      </span>
+                    {isNE && <PenCircle />}
+                    <div className={`font-mono leading-none ${compact ? 'text-4xl' : 'text-6xl'}`}>
+                      <span style={{ color: ROW_COLOR, ...(rowBR(r as 0 | 1, c as 0 | 1) ? ul : {}) }}>{format(a)}</span>
+                      <span className="text-ink-3">,</span>
+                      <span style={{ color: COL_COLOR, ...(colBR(r as 0 | 1, c as 0 | 1) ? ul : {}) }}>{format(b)}</span>
                     </div>
-                    {neCell && <div className="mt-1 text-sm font-bold uppercase tracking-wider text-neon-lime">Nash eq.</div>}
-                    {sel && <div className="mt-1 text-sm font-bold uppercase tracking-wider text-neon-amber">Class outcome</div>}
-                    {mixed && (
-                      <div className="mt-1 font-mono text-sm text-slate-300">
-                        P = {prob((r ? mixed.rowP1 : 1 - mixed.rowP1) * (c ? mixed.colP1 : 1 - mixed.colP1))}
-                      </div>
-                    )}
-                  </motion.td>
+                    {isNE && <div className="mt-2 font-pixel text-xs text-gold">NASH</div>}
+                    {sel && <div className="mt-2 font-pixel text-xs text-blue">CLASS</div>}
+                    {mixed && <div className="mt-2 font-mono text-xl text-ink-3">P = {prob((r ? mixed.rowP1 : 1 - mixed.rowP1) * (c ? mixed.colP1 : 1 - mixed.colP1))}</div>}
+                  </td>
                 );
               })}
             </tr>
           ))}
         </tbody>
       </table>
-      {(bestResponses || nash || mixed) && (
-        <div className="mt-3 flex flex-wrap justify-center gap-x-5 gap-y-1 text-base text-slate-300">
-          {bestResponses && <span><span className="underline decoration-2 underline-offset-4">underlined</span> = best response</span>}
-          {nash && <span><span className="text-neon-lime">green cell</span> = pure Nash equilibrium</span>}
-          {mixed && <span>% on headers = mixed-strategy equilibrium; P = probability of each cell</span>}
+      {legend && (bestResponses || nash || mixed) && (
+        <div className="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-1 text-lg text-ink-2">
+          {bestResponses && <span><span className="underline decoration-2 underline-offset-4">Underlined</span>: best response</span>}
+          {nash && <span><span className="text-gold">Gold frame</span>: pure Nash equilibrium</span>}
+          {mixed && <span>Percentages: the mixed-strategy equilibrium</span>}
         </div>
       )}
     </div>

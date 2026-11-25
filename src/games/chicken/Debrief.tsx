@@ -34,7 +34,7 @@ export function ChickenDebrief({ st, sol, accent }: { st: ChickenState; sol: Chi
       <SectionTitle kicker="Debrief" title="Humans vs Nash: the bridge" color={accent} />
       {o && res ? (
         <VersusCard
-          classChoice={`${g.rowLabels[o.a]} / ${g.colLabels[o.b]}${o.a === 1 && o.b === 1 ? ' 💥' : ''}`}
+          classChoice={`${g.rowLabels[o.a]} / ${g.colLabels[o.b]}${o.a === 1 && o.b === 1 ? ' (crash)' : ''}`}
           classPayoff={`${res[0]} + ${res[1]} = ${classTotal}`}
           nashPrediction={nashLabel}
           nashPayoff={`${nashTotal.toFixed(2)} expected`}
@@ -45,7 +45,7 @@ export function ChickenDebrief({ st, sol, accent }: { st: ChickenState; sol: Chi
           The class hasn’t played yet. <NextStageButton label="Go to Play" to="play" />
         </div>
       )}
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Takeaways
           color={accent}
           items={[
@@ -60,14 +60,14 @@ export function ChickenDebrief({ st, sol, accent }: { st: ChickenState; sol: Chi
             <>Real life: brinkmanship, price wars, merging traffic. Commitment (ripping out the steering wheel) wins Chicken — if the other side sees it.</>,
           ]}
         />
-        <div className="card self-start">
-          <div className="label mb-2">Discuss</div>
-          <ul className="list-disc space-y-2 pl-5 text-lg">
+        <div className="self-start">
+          <h3 className="mb-3 text-xl">Discuss</h3>
+          <ul className="list-disc space-y-2 pl-6 text-lg text-ink-2">
             <li>Did either side try to signal before voting? Would cheap talk help here?</li>
             <li>If you could publicly commit to “straight” first, would you? What makes that credible?</li>
             <li>Why does making the truck safer make the <em>car</em> more aggressive in equilibrium?</li>
           </ul>
-          <div className="mt-5 flex flex-wrap gap-3">
+          <div className="mt-8 flex flex-wrap gap-3">
             <Link to="/" className="btn-ghost">
               ← Back to arcade
             </Link>

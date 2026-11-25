@@ -1,42 +1,38 @@
 import { BlockMath, InlineMath } from 'react-katex';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useBuildSteps } from '../state/presenter';
+import { T } from './motion';
 
 export type MathLine = { tex: string; note?: string };
 
-/** KaTeX equation lines revealed one per keypress (→ / Space), or by tapping "Next line". */
-export function MathBlock({ lines, title, accent = '#22d3ee' }: { lines: MathLine[]; title?: string; accent?: string }) {
+/** The maths, on a cream comic page so it reads clearly on a projector. One line per keypress. */
+export function MathBlock({ lines, title }: { lines: MathLine[]; title?: string; accent?: string }) {
   const { shown, advance, showAll, done } = useBuildSteps(lines.length, 1);
   return (
-    <div className="card">
-      {title && <div className="label mb-2">{title}</div>}
-      <div className="space-y-1">
-        <AnimatePresence initial={false}>
-          {lines.slice(0, shown).map((l, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -12 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex flex-col border-l-4 pl-4"
-              style={{ borderColor: i === shown - 1 ? accent : '#2e3958' }}
-            >
-              <div className="min-w-0 flex-1 text-lg">
+    <div className="page halftone overflow-hidden p-6">
+      {title && <h3 className="mb-4 text-sm text-red">{title.toUpperCase()}</h3>}
+      <div className="space-y-2">
+        {lines.slice(0, shown).map((l, i) => (
+          <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={T} className="flex gap-3">
+            <span className={`mt-3 h-4 w-4 shrink-0 border-2 border-black ${i === shown - 1 ? 'bg-red' : 'bg-transparent'}`} />
+            <div className="min-w-0 flex-1">
+              <div className="text-lg text-paperink">
                 <BlockMath math={l.tex} />
               </div>
-              {l.note && <div className="-mt-1 pb-2 text-base text-slate-300">{l.note}</div>}
-            </motion.div>
-          ))}
-        </AnimatePresence>
+              {l.note && <div className="pb-2 text-lg text-paperink-2">{l.note}</div>}
+            </div>
+          </motion.div>
+        ))}
       </div>
       {!done && (
-        <div className="mt-3 flex flex-wrap gap-2">
-          <button className="btn-ghost py-1.5" onClick={advance}>
-            Next line <span className="kbd">→</span>
+        <div className="mt-4 flex flex-wrap items-center gap-4">
+          <button className="btn-ghost" onClick={advance}>
+            NEXT LINE ▶
           </button>
-          <button className="btn-ghost py-1.5" onClick={showAll}>
-            Show all
+          <button className="font-pixel text-xs text-paperink-2 underline underline-offset-4" onClick={showAll}>
+            SHOW ALL
           </button>
-          <span className="self-center text-sm text-slate-400">
+          <span className="font-pixel text-xs text-paperink-2">
             {shown}/{lines.length}
           </span>
         </div>

@@ -13,7 +13,7 @@ const LAYERS = ['Stage game', 'Best responses', 'Nash equilibrium'];
 
 export function AdSolve({ accent }: { accent: string }) {
   const s = useMemo(() => solveStageGame(), []);
-  const { shown, advance } = useBuildSteps(LAYERS.length, 1);
+  const { shown, advance } = useBuildSteps(LAYERS.length, 1, 0);
   const { T, R, P, S } = PD;
   const dStar = grimDeltaThreshold();
   const [delta, setDelta] = useState(0.7);
@@ -31,11 +31,11 @@ export function AdSolve({ accent }: { accent: string }) {
   const pbVal = s.game.payoffs[pb.r][pb.c];
 
   const dominance: MathLine[] = [
-    { tex: `\\text{Rival Saves: } u(\\text{Ad}) = T = ${T} \;>\; u(\\text{Save}) = R = ${R}` },
-    { tex: `\\text{Rival Ads: } u(\\text{Ad}) = P = ${P} \;>\; u(\\text{Save}) = S = ${S}` },
-    { tex: `\\Rightarrow\; \\text{Ad strictly dominates Save} \\Rightarrow \\text{NE} = (\\text{Ad},\\text{Ad}) = (${neVal[0]}, ${neVal[1]})`, note: 'Each shop advertises whatever the other does.' },
+    { tex: `\\text{Rival Saves: } u(\\text{Ad}) = T = ${T} \\quad >\\quad  u(\\text{Save}) = R = ${R}` },
+    { tex: `\\text{Rival Ads: } u(\\text{Ad}) = P = ${P} \\quad >\\quad  u(\\text{Save}) = S = ${S}` },
+    { tex: `\\Rightarrow\\quad  \\text{Ad strictly dominates Save} \\Rightarrow \\text{NE} = (\\text{Ad},\\text{Ad}) = (${neVal[0]}, ${neVal[1]})`, note: 'Each shop advertises whatever the other does.' },
     { tex: `(\\text{Save},\\text{Save}) = (${pbVal[0]}, ${pbVal[1]}) \\text{ is better for both} \\Rightarrow \\text{NE is Pareto-dominated}`, note: 'Individually rational, collectively worse: the dilemma.' },
-    { tex: `T > R > P > S:\; ${T} > ${R} > ${P} > ${S}, \\qquad 2R = ${2 * R} > T + S = ${T + S}`, note: 'The two conditions that make it a Prisoner’s Dilemma (the second rules out taking turns).' },
+    { tex: `T > R > P > S:\\quad  ${T} > ${R} > ${P} > ${S}, \\qquad 2R = ${2 * R} > T + S = ${T + S}`, note: 'The two conditions that make it a Prisoner’s Dilemma (the second rules out taking turns).' },
   ];
   const finite: MathLine[] = [
     { tex: `\\text{Week } ${ROUNDS}: \\text{ no future} \\Rightarrow \\text{one-shot PD} \\Rightarrow \\text{Ad}`, note: 'Everyone knows week 20 is the last one.' },
@@ -52,39 +52,35 @@ export function AdSolve({ accent }: { accent: string }) {
   return (
     <div>
       <SectionTitle kicker="Solve" title="Why both shops end up advertising" color={accent} />
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
         <div className="card">
-          <div className="mb-3 flex flex-wrap gap-2">
-            {LAYERS.map((l, i) => (
-              <span key={l} className={`chip ${i < shown ? '' : 'text-slate-500'}`} style={i === shown - 1 ? { borderColor: accent, color: accent } : undefined}>
-                {i + 1}. {l}
-              </span>
-            ))}
+          <div className="mb-4 text-base text-ink-3">
+            Step {shown} of {LAYERS.length}: <span className="text-ink">{LAYERS[shown - 1]}</span>
           </div>
           <PayoffMatrix game={s.game} bestResponses={shown >= 2} nash={shown >= 3} format={(n) => `${n}`} />
-          <p className="mt-3 text-center text-base text-slate-300">Payoffs in ₹ thousands per week (Shop A, Shop B).</p>
+          <p className="mt-3 text-center text-base text-ink-2">Payoffs in ₹ thousands per week (Shop A, Shop B).</p>
           {shown < LAYERS.length && (
             <button className="btn-ghost mt-3" onClick={advance}>
               Next layer <span className="kbd">→</span>
             </button>
           )}
         </div>
-        <div className="space-y-5">
+        <div className="space-y-6">
           <MathBlock title="One week: dominant strategy" lines={dominance} accent={accent} />
           <MathBlock title={`Finite horizon: ${ROUNDS} known weeks`} lines={finite} accent={accent} />
         </div>
       </div>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+      <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
         <MathBlock title="Infinite horizon: Grim Trigger" lines={infinite} accent={accent} />
         <div className="card">
           <div className="label mb-2">Is cooperation worth it at this δ?</div>
           <Slider label="δ (patience)" value={delta} min={0} max={0.95} step={0.01} onChange={setDelta} format={(v) => v.toFixed(2)} />
           <div className="mt-3 grid grid-cols-2 gap-3">
-            <Stat label="Cooperate" value={`₹${cooperateValue(delta).toFixed(0)}k`} color={SERIES[0]} />
-            <Stat label="Deviate" value={`₹${defectValue(delta).toFixed(0)}k`} color={SERIES[1]} />
+            <Stat label="Cooperate" value={`₹${cooperateValue(delta).toFixed(0)}k`} color={SERIES.pen} />
+            <Stat label="Deviate" value={`₹${defectValue(delta).toFixed(0)}k`} color={SERIES.graphite} />
           </div>
-          <div className={`mt-3 text-lg font-semibold ${delta >= dStar ? 'text-neon-lime' : 'text-neon-pink'}`}>
+          <div className={`mt-3 text-lg ${delta >= dStar ? 'text-teal' : 'text-red'}`}>
             {delta >= dStar ? `δ ≥ ${dStar}: cooperation is self-enforcing.` : `δ < ${dStar}: the one-time gain from Ad wins.`}
           </div>
           <div className="mt-3 h-56">
@@ -95,10 +91,10 @@ export function AdSolve({ accent }: { accent: string }) {
                 <YAxis {...axis} width={60} tickFormatter={(v: number) => `₹${v}k`} />
                 <Tooltip {...tooltip} formatter={(v: number) => `₹${v}k`} labelFormatter={(l) => `δ = ${l}`} />
                 <Legend {...legend} />
-                <ReferenceLine x={dStar} stroke="#a3e635" strokeDasharray="4 4" label={{ value: `δ* = ${dStar}`, fill: '#a3e635', fontSize: 16, position: 'top' }} />
-                <ReferenceLine x={delta} stroke="#fbbf24" />
-                <Line dataKey="coop" name="Cooperate forever" stroke={SERIES[0]} strokeWidth={2} dot={false} isAnimationActive={false} />
-                <Line dataKey="defect" name="Deviate, then punished" stroke={SERIES[1]} strokeDasharray="6 4" strokeWidth={2} dot={false} isAnimationActive={false} />
+                <ReferenceLine x={dStar} stroke={SERIES.mark} strokeDasharray="4 4" label={{ value: `δ* = ${dStar}`, fill: SERIES.mark, fontSize: 16, position: 'top' }} />
+                <ReferenceLine x={delta} stroke="rgba(246,240,220,0.5)" />
+                <Line dataKey="coop" name="Cooperate forever" stroke={SERIES.pen} strokeWidth={2} dot={false} isAnimationActive={false} />
+                <Line dataKey="defect" name="Deviate, then punished" stroke={SERIES.graphite} strokeDasharray="6 4" strokeWidth={2} dot={false} isAnimationActive={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
