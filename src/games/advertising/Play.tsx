@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { VotePanel } from '../../components/VotePanel';
-import { PEN, RED, SectionTitle, Stat } from '../../components/ui';
+import { PEN, RED, SectionTitle, Stat, rupeeK } from '../../components/ui';
 import { NextStageButton } from '../../components/GameShell';
 import { ROUNDS, STRATEGIES, aiMove, payoffs, strategyById, type Move } from '../../engine/advertising';
 import { CumulativeChart, TallyGrid, cumulative } from './Tally';
@@ -120,11 +120,11 @@ export function AdPlay({ st, accent }: { st: AdState; accent: string }) {
               <Stat
                 label="Last week"
                 value={`${st.classMoves[round - 1]} vs ${st.aiMoves[round - 1]}`}
-                sub={`₹${payoffs(st.classMoves[round - 1], st.aiMoves[round - 1]).join('k / ₹')}k`}
+                sub={payoffs(st.classMoves[round - 1], st.aiMoves[round - 1]).map(rupeeK).join(' / ')}
               />
               <Stat label="Weeks both saved" value={st.classMoves.filter((m, i) => m === 'S' && st.aiMoves[i] === 'S').length} sub={`of ${round}`} color={RED} />
-              <Stat label="Brew Theory (class)" value={`₹${last.a}k`} color={PEN} />
-              <Stat label={mystery && !done ? 'Rival' : 'Bean There'} value={`₹${last.b}k`} color={RED} />
+              <Stat label="Brew Theory (class)" value={rupeeK(last.a)} color={PEN} />
+              <Stat label={mystery && !done ? 'Rival' : 'Bean There'} value={rupeeK(last.b)} color={RED} />
             </div>
           )}
           {!done && (

@@ -6,12 +6,12 @@ import { T } from '../../components/motion';
 /** Pixel kitchen: two roommates, one overflowing bin, a pile that grows each minute. */
 export function Room({ minute, moodA, moodB, costEach, maxCost }: { minute: number; moodA: Mood; moodB: Mood; costEach: number; maxCost: number }) {
   const bags = Math.min(minute, 14);
-  const A = face(moodA, C.brown);
-  const B = face(moodB, C.K, C.skin2);
+  const A = face(moodA, C.brown, C.skin, C.blueD, 'short');
+  const B = face(moodB, C.K, C.skin2, C.redD, 'long');
   return (
     <div className="relative grid grid-cols-1 items-end sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-4 border-4 border-black bg-[#2d2a52] p-6 shadow-hard halftone-light">
       <div className="flex flex-col items-center gap-3">
-        <Sprite {...A} px={9} title="Roommate A (the class)" />
+        <Sprite {...A} px={7} title="Roommate A (the class)" />
         <span className="font-pixel text-xs text-blue">YOU (A)</span>
         <Meter value={costEach} max={maxCost} color="#5aa7ff" />
       </div>
@@ -40,7 +40,7 @@ export function Room({ minute, moodA, moodB, costEach, maxCost }: { minute: numb
         <Sprite {...icons.bin} px={8} title="The kitchen bin" />
       </div>
       <div className="flex flex-col items-center gap-3">
-        <Sprite {...B} px={9} flip title="Roommate B" />
+        <Sprite {...B} px={7} flip title="Roommate B" />
         <span className="font-pixel text-xs text-red">ROOMMATE (B)</span>
         <Meter value={costEach} max={maxCost} color="#ef5a4b" />
       </div>

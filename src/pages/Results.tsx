@@ -42,7 +42,7 @@ export default function Results() {
   const { togglePresenter } = usePresenter();
   const played = GAMES.filter((g) => results[g.id]);
   const beat = played.filter((g) => results[g.id]!.classPayoff > results[g.id]!.nashPayoff).length;
-  const nash = face(beat > played.length / 2 ? 'shocked' : 'smug', '#a39bc9', C.skin);
+  const nash = face(beat > played.length / 2 ? 'shocked' : 'smug', '#a39bc9', C.skin, '#2b2659', 'neat');
 
   useEffect(() => {
     document.title = 'Humans vs Nash · Game Theory Arcade';
@@ -75,7 +75,7 @@ export default function Results() {
         </div>
         <Panel className="bg-[#241f52] p-6">
           <div className="flex items-end justify-between gap-4">
-            <Sprite {...nash} px={10} title="John Nash, pixelated" />
+            <Sprite {...nash} px={8} title="John Nash, pixelated" />
             <Bubble side="bottom-right">
               {played.length === 0
                 ? 'Play a level and I’ll keep score.'
@@ -107,7 +107,7 @@ export default function Results() {
           if (!r)
             return (
               <div key={g.id} className="flex flex-wrap items-center justify-between gap-4 border-4 border-dashed border-panel2 p-4">
-                <span className="text-2xl font-bold text-ink-3">
+                <span className="font-display text-2xl font-bold text-ink-3">
                   <span className="font-pixel text-xs">LVL {g.number}</span> · {g.title}
                 </span>
                 <Link to={g.path} className="btn-ghost">
@@ -122,7 +122,7 @@ export default function Results() {
               <div className="grid grid-cols-1 items-center gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
                 <div>
                   <div className="font-pixel text-xs text-gold">LVL {g.number}</div>
-                  <div className="text-3xl font-bold">{g.title}</div>
+                  <div className="font-display text-3xl font-bold">{g.title}</div>
                   <div className="text-lg text-teal">{g.concept}</div>
                 </div>
                 <div className="space-y-2">

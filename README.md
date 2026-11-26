@@ -2,6 +2,8 @@
 
 A pixel-art arcade of five classic games from game theory. The class plays each game by show of hands, then the app solves it on screen with the maths, runs simulations, and compares what the class did with the Nash prediction.
 
+**Play it live:** https://arcade-gt.vercel.app
+
 Every level runs the same loop: **Story → Play → Solve → Simulate → Debrief**. The last screen, **Humans vs Nash**, compares the class's results with the equilibrium in every game.
 
 ## The five levels

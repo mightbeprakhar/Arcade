@@ -140,10 +140,10 @@ export function GameShell({
 }
 
 /** A big "continue" button at the bottom of a stage. */
-export function NextStageButton({ label, to }: { label?: string; to?: StageId }) {
+export function NextStageButton({ label, to, quiet = false }: { label?: string; to?: StageId; quiet?: boolean }) {
   const { goTo, index } = useStage();
   return (
-    <button className="btn-primary" onClick={() => goTo(to ?? index + 1)}>
+    <button className={quiet ? 'btn-ghost' : 'btn-primary'} onClick={() => goTo(to ?? index + 1)}>
       {(label ?? 'Continue').toUpperCase()} ▶
     </button>
   );

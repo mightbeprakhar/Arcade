@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { recordStartup } from '../../state/record';
 import { GameShell, type Stage } from '../../components/GameShell';
 import { metaById } from '../meta';
 import { STARTUP, solveTree, type Demand, type IncAction } from '../../engine/startup';
@@ -29,6 +30,10 @@ export default function StartupGame() {
   const [r, setR] = useState(0);
   const [round, setRound] = useState<StartupRound | null>(null);
   const sol = useMemo(() => solveTree({ p, credible, r }), [p, credible, r]);
+  useEffect(() => {
+    if (round) recordStartup(round, sol, p, credible);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [round]);
   const st: StartupState = { p, setP, credible, setCredible, r, setR, round, setRound, sol };
   const stages: Stage[] = [
     { id: 'story', label: 'Story', render: () => <StartupStory /> },

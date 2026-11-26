@@ -15,7 +15,7 @@ const LINES: Record<string, [string, string]> = {
   '0-0': ['Phew. Nobody’s a hero tonight.', 'Same. Call it a draw.'],
   '0-1': ['…I blinked.', 'Never doubted it.'],
   '1-0': ['Never doubted it.', '…I blinked.'],
-  '1-1': ['WHY DIDN’T YOU SWERVE?!', 'WHY DIDN’T YOU?!'],
+  '1-1': ['Why didn’t you swerve?!', 'Why didn’t YOU?!'],
 };
 const MOODS: Record<string, [Mood, Mood]> = { '0-0': ['happy', 'happy'], '0-1': ['sad', 'smug'], '1-0': ['smug', 'sad'], '1-1': ['shocked', 'shocked'] };
 
@@ -129,11 +129,11 @@ export function ChickenPlay({ st, sol }: { st: ChickenState; sol: ChickenSolutio
           <Panel tone="night" className="p-6">
             <div className="grid grid-cols-2 gap-4">
               {[0, 1].map((i) => {
-                const f = face(MOODS[key][i], i ? C.K : C.brown);
+                const f = face(MOODS[key][i], i ? C.K : C.brown, C.skin, i ? C.redD : C.blueD, i ? 'spiky' : 'short');
                 return (
                   <div key={i} className={`flex flex-col gap-4 ${i ? 'items-end' : 'items-start'}`}>
                     <Bubble side={i ? 'bottom-right' : 'bottom-left'}>{LINES[key][i]}</Bubble>
-                    <Sprite {...f} px={9} flip={!!i} />
+                    <Sprite {...f} px={7} flip={!!i} />
                     <div className="font-mono text-6xl leading-none" style={{ color: i ? '#ef5a4b' : '#5aa7ff' }}>
                       {res![i] > 0 ? `+${res![i]}` : res![i]}
                     </div>

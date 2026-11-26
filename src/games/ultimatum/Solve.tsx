@@ -64,9 +64,9 @@ export function UltSolve() {
   const thr = fehrSchmidtThreshold(alpha);
 
   const spneLines: MathLine[] = [
-    { tex: `\\text{Responder at offer } x:\\quad \\text{accept} \\to x,\\qquad \\text{reject} \\to 0` },
+    { tex: [`\\text{Responder at offer } x:\\quad \\text{accept} \\to x`, `\\text{reject} \\to 0`] },
     { tex: `x > 0 \\Rightarrow \\text{accept};\\qquad x = 0 \\Rightarrow \\text{indifferent}`, note: 'Backward induction: solve the last mover first.' },
-    { tex: `\\text{Proposer: } \\max_x\\quad ${PIE} - x \\quad \\text{ s.t. accepted} \\Rightarrow x^* = ${STEP}`, note: `SPNE 1: offer ${r(STEP)}, payoffs (${r(s1.payoffs[0])}, ${r(s1.payoffs[1])}).` },
+    { tex: [`\\text{Proposer: } \\max_x\\quad ${PIE} - x \\quad \\text{ s.t. accepted}`, `\\Rightarrow x^* = ${STEP}`], note: `SPNE 1: offer ${r(STEP)}, payoffs (${r(s1.payoffs[0])}, ${r(s1.payoffs[1])}).` },
     { tex: `\\text{If the Responder accepts } x = 0 \\text{ too} \\Rightarrow x^* = 0`, note: `SPNE 2 (discrete game): offer ₹0, payoffs (${r(PIE)}, ₹0). Both are subgame perfect.` },
   ];
   const fsLines: MathLine[] = [
@@ -79,13 +79,13 @@ export function UltSolve() {
   return (
     <div>
       <SectionTitle kicker="SOLVE" title="Backward induction" />
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-6">
         <Panel className="p-4">
           <div className="mb-4 flex flex-wrap items-center gap-3">
             <span className="chip text-gold">
               STEP {shown}/{STEPS.length}
             </span>
-            <span className="text-xl font-bold">{STEPS[shown - 1]}</span>
+            <span className="font-display text-xl font-bold">{STEPS[shown - 1]}</span>
           </div>
           <GameTree root={tree} pruned={pruned} chosen={chosen} values={values} playerColors={{ Proposer: '#5aa7ff', Responder: '#ef5a4b' }} />
           <Narration className="mt-4">{EXPLAIN[shown - 1]}</Narration>

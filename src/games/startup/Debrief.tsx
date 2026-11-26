@@ -1,10 +1,8 @@
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Notes, SectionTitle, Takeaways, VersusCard } from '../../components/ui';
 import { NextStageButton } from '../../components/GameShell';
 import { Narration } from '../../components/comic';
 import { STARTUP, leafPayoff, solveTree } from '../../engine/startup';
-import { recordResult } from '../../state/results';
 import type { StartupState } from './StartupGame';
 
 export function StartupDebrief({ st }: { st: StartupState }) {
@@ -14,11 +12,6 @@ export function StartupDebrief({ st }: { st: StartupState }) {
   const nashPay = st.sol.decision === 'Enter' ? st.sol.euEnter : STARTUP.stayOut[0];
   const nashLabel = `${st.sol.decision} (p = ${st.p.toFixed(2)}${st.credible ? ', credible threat' : ''})`;
 
-  useEffect(() => {
-    if (!rd) return;
-    recordResult('startup', { classChoice: choice, classPayoff: pay, nashPrediction: nashLabel, nashPayoff: +nashPay.toFixed(2), unit: 'profit pts', note: 'Nash payoff is the expected value' });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rd]);
 
   return (
     <div>

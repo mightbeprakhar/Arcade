@@ -27,10 +27,10 @@ export function ChickenStory({ st }: { st: ChickenState; accent?: string }) {
   }, [shown, st.voice]);
   useEffect(() => () => stopSpeaking(), []);
 
-  const A = face('grim', C.brown);
-  const B = face('smug', C.K);
-  const shocked = face('shocked', C.brown);
-  const shocked2 = face('shocked', C.K);
+  const A = face('grim', C.brown, C.skin, C.blueD, 'short');
+  const B = face('smug', C.K, C.skin, C.redD, 'spiky');
+  const shocked = face('shocked', C.brown, C.skin, C.blueD, 'short');
+  const shocked2 = face('shocked', C.K, C.skin, C.redD, 'spiky');
 
   return (
     <div className="space-y-6">
@@ -58,10 +58,10 @@ export function ChickenStory({ st }: { st: ChickenState; accent?: string }) {
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {shown >= 2 ? (
-          <Panel tone="blue" className="flex min-h-[18rem] flex-col justify-between p-4">
+          <Panel reveal tone="blue" className="flex min-h-[18rem] flex-col justify-between p-4">
             <Narration current={shown === 2}>{panels[1]}</Narration>
             <div className="flex items-end justify-between gap-4">
-              <Sprite {...A} px={10} title="Driver A" />
+              <Sprite {...A} px={8} title="Driver A" />
               <Bubble side="bottom-left">Swerve? Me? Never.</Bubble>
             </div>
           </Panel>
@@ -69,23 +69,23 @@ export function ChickenStory({ st }: { st: ChickenState; accent?: string }) {
           <Blank />
         )}
         {shown >= 3 ? (
-          <Panel tone="red" className="flex min-h-[18rem] flex-col justify-between p-4">
+          <Panel reveal tone="red" className="flex min-h-[18rem] flex-col justify-between p-4">
             <Narration current={shown === 3}>{panels[2]}</Narration>
             <div className="flex items-end justify-between gap-4">
               <Bubble side="bottom-right">Hold the line and I win.</Bubble>
-              <Sprite {...B} px={10} flip title="Driver B" />
+              <Sprite {...B} px={8} flip title="Driver B" />
             </div>
           </Panel>
         ) : (
           <Blank />
         )}
         {shown >= 4 ? (
-          <Panel tone="night" className="flex min-h-[18rem] flex-col justify-between p-4">
+          <Panel reveal tone="night" className="flex min-h-[18rem] flex-col justify-between p-4">
             <Narration current={shown === 4}>{panels[3]}</Narration>
             <div className="relative flex items-end justify-between">
-              <Sprite {...shocked} px={8} title="Driver A, shocked" />
+              <Sprite {...shocked} px={6} title="Driver A, shocked" />
               <ActionWord text="CRASH!" size={32} className="-my-4" />
-              <Sprite {...shocked2} px={8} flip title="Driver B, shocked" />
+              <Sprite {...shocked2} px={6} flip title="Driver B, shocked" />
             </div>
             <div className="text-center font-pixel text-sm text-red">
               {crashCar} EACH
@@ -98,7 +98,7 @@ export function ChickenStory({ st }: { st: ChickenState; accent?: string }) {
 
       {shown >= 5 && (
         <div className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-[1fr_auto_1fr]">
-          <Panel tone="blue" className="grid place-items-center p-6 text-center">
+          <Panel reveal tone="blue" className="grid place-items-center p-6 text-center">
             <div className="font-pixel text-lg text-black">◀ LEFT SIDE</div>
             <div className="mt-2 text-2xl font-bold text-black">You drive the blue car</div>
           </Panel>

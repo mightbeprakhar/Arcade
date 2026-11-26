@@ -1,9 +1,7 @@
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { SectionTitle, Takeaways, VersusCard } from '../../components/ui';
 import { NextStageButton } from '../../components/GameShell';
 import { payoff, type ChickenSolution } from '../../engine/chicken';
-import { recordResult } from '../../state/results';
 import type { ChickenState } from './ChickenGame';
 
 const pct = (x: number) => `${+(x * 100).toFixed(1)}%`;
@@ -16,18 +14,6 @@ export function ChickenDebrief({ st, sol, accent }: { st: ChickenState; sol: Chi
   const nashTotal = sol.mixed.rowValue + sol.mixed.colValue;
   const nashLabel = `Mix: ${g.rowPlayer} straight ${pct(sol.mixed.rowP1)}, ${g.colPlayer} ${pct(sol.mixed.colP1)}`;
 
-  useEffect(() => {
-    if (!o || !res) return;
-    recordResult('chicken', {
-      classChoice: `${g.rowPlayer} ${g.rowLabels[o.a]}, ${g.colPlayer} ${g.colLabels[o.b]}`,
-      classPayoff: res[0] + res[1],
-      nashPrediction: nashLabel,
-      nashPayoff: nashTotal,
-      unit: 'pts (both drivers)',
-      note: o.a === 1 && o.b === 1 ? 'The class crashed.' : undefined,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [o?.a, o?.b, st.asymmetric]);
 
   return (
     <div>

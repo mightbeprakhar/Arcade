@@ -2,8 +2,11 @@ import { BlockMath, InlineMath } from 'react-katex';
 import { motion } from 'framer-motion';
 import { useBuildSteps } from '../state/presenter';
 import { T } from './motion';
+import { FitWidth } from './FitWidth';
+import { useRevealScroll } from './useReveal';
 
-export type MathLine = { tex: string; note?: string };
+/** `tex` may be split into several parts, each shown on its own line. */
+export type MathLine = { tex: string | string[]; note?: string };
 
 /** The maths, on a cream comic page so it reads clearly on a projector. One line per keypress. */
 export function MathBlock({ lines, title }: { lines: MathLine[]; title?: string; accent?: string }) {
@@ -13,15 +16,7 @@ export function MathBlock({ lines, title }: { lines: MathLine[]; title?: string;
       {title && <h3 className="mb-4 text-sm text-red">{title.toUpperCase()}</h3>}
       <div className="space-y-2">
         {lines.slice(0, shown).map((l, i) => (
-          <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={T} className="flex gap-3">
-            <span className={`mt-3 h-4 w-4 shrink-0 border-2 border-black ${i === shown - 1 ? 'bg-red' : 'bg-transparent'}`} />
-            <div className="min-w-0 flex-1">
-              <div className="text-lg text-paperink">
-                <BlockMath math={l.tex} />
-              </div>
-              {l.note && <div className="pb-2 text-lg text-paperink-2">{l.note}</div>}
-            </div>
-          </motion.div>
+          <Line key={i} line={l} current={i === shown - 1} revealed={i > 0} />
         ))}
       </div>
       {!done && (
@@ -38,6 +33,26 @@ export function MathBlock({ lines, title }: { lines: MathLine[]; title?: string;
         </div>
       )}
     </div>
+  );
+}
+
+/** One maths line; lines after the first were revealed by the presenter, so they scroll into view. */
+function Line({ line, current, revealed }: { line: MathLine; current: boolean; revealed: boolean }) {
+  const ref = useRevealScroll<HTMLDivElement>(revealed);
+  return (
+    <motion.div ref={ref} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={T} className="reveal flex gap-3">
+      <span className={`mt-3 h-4 w-4 shrink-0 border-2 border-black ${current ? 'bg-red' : 'bg-transparent'}`} />
+      <div className="min-w-0 flex-1">
+        <div className="text-lg text-paperink">
+          {(Array.isArray(line.tex) ? line.tex : [line.tex]).map((t, j) => (
+            <FitWidth key={j} align="left">
+              <BlockMath math={t} />
+            </FitWidth>
+          ))}
+        </div>
+        {line.note && <div className="pb-2 text-lg text-paperink-2">{line.note}</div>}
+      </div>
+    </motion.div>
   );
 }
 

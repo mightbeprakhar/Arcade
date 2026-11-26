@@ -2,6 +2,7 @@ import type { CSSProperties, ReactNode } from "react";
 import type { MotionStyle } from "framer-motion";
 import { motion } from 'framer-motion';
 import { T } from './motion';
+import { useRevealScroll } from './useReveal';
 
 /* Comic vocabulary for the pixel world: panels, speech bubbles, narration boxes, action words. */
 
@@ -14,15 +15,19 @@ export function Panel({
   className = '',
   tone = 'night',
   style,
+  reveal = false,
 }: {
   children: ReactNode;
   className?: string;
   tone?: 'night' | 'cream' | 'gold' | 'blue' | 'red' | 'teal';
   style?: CSSProperties;
+  /** Scroll into view on mount (use for panels revealed by a keypress). */
+  reveal?: boolean;
 }) {
+  const ref = useRevealScroll<HTMLDivElement>(reveal);
   const bg = { night: 'bg-panel halftone-light', cream: 'bg-cream text-paperink halftone', gold: 'bg-gold text-black halftone', blue: 'bg-blue text-black halftone', red: 'bg-red text-black halftone', teal: 'bg-teal text-black halftone' }[tone];
   return (
-    <div className={`relative overflow-hidden border-4 border-black shadow-hard ${bg} ${className}`} style={style}>
+    <div ref={ref} className={`reveal relative overflow-hidden border-4 border-black shadow-hard ${bg} ${className}`} style={style}>
       {children}
     </div>
   );
@@ -47,7 +52,7 @@ export function Bubble({
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={T} className={`relative inline-block ${className}`} style={style as MotionStyle}>
       <div className="relative bg-black p-1" style={{ clipPath: STEP(8) }}>
-        <div className="px-4 py-3 font-sans text-xl font-bold uppercase leading-tight text-paperink" style={{ background: bg, clipPath: STEP(6) }}>
+        <div className="px-4 py-3 font-sans text-xl font-semibold leading-snug text-paperink" style={{ background: bg, clipPath: STEP(6) }}>
           {children}
         </div>
       </div>

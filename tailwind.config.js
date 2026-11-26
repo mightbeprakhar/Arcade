@@ -37,7 +37,10 @@ export default {
     },
     fontFamily: {
       pixel: ['"Press Start 2P"', 'monospace'],
-      sans: ['"Arcade Digits"', '"Pixelify Sans"', 'ui-monospace', 'monospace'],
+      // Body text, captions, bubbles, notes: a clean, highly legible face (bundled, works offline).
+      sans: ['"Atkinson Hyperlegible Next"', 'system-ui', 'sans-serif'],
+      // Pixel display face for titles and labels inside cards.
+      display: ['"Pixelify Sans"', 'ui-monospace', 'monospace'],
       // Numbers: VT323 has unambiguous digits (5 ≠ S, 7 ≠ 1) and is narrow enough for matrices.
       mono: ['VT323', 'ui-monospace', 'monospace'],
     },

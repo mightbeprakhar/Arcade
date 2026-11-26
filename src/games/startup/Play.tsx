@@ -103,7 +103,7 @@ function Coin({ result }: { result: Demand | null }) {
 }
 
 function Reveal({ phase, round, p }: { phase: 'flip' | 'incumbent'; round: Extract<StartupRound, { entered: true }>; p: number }) {
-  const ceo = face('grim', '#a39bc9', C.skin2);
+  const ceo = face('grim', '#a39bc9', C.skin2, '#2b2659', 'neat');
   return (
     <Panel className="grid min-h-[22rem] grid-cols-1 items-center gap-6 bg-[#241f52] p-6 md:grid-cols-2">
       <div className="flex flex-col items-center gap-4">
@@ -114,7 +114,7 @@ function Reveal({ phase, round, p }: { phase: 'flip' | 'incumbent'; round: Extra
       {phase === 'incumbent' && (
         <div className="flex items-end justify-center gap-4">
           <Bubble side="bottom-right">Let me think about that threat…</Bubble>
-          <Sprite {...ceo} px={10} flip />
+          <Sprite {...ceo} px={8} flip />
         </div>
       )}
     </Panel>
@@ -125,8 +125,8 @@ function Outcome({ st, onAgain }: { st: StartupState; onAgain: () => void }) {
   const rd = st.round!;
   const pay = rd.entered ? leafPayoff(rd.demand, rd.action, st.credible) : STARTUP.stayOut;
   const fight = rd.entered && rd.action === 'Fight';
-  const founder = face(!rd.entered ? 'sad' : fight ? 'shocked' : 'happy', C.brown);
-  const ceo = face(!rd.entered ? 'smug' : fight ? 'grim' : 'sad', '#a39bc9', C.skin2);
+  const founder = face(!rd.entered ? 'sad' : fight ? 'shocked' : 'happy', C.brown, C.skin, C.blueD, 'short');
+  const ceo = face(!rd.entered ? 'smug' : fight ? 'grim' : 'sad', '#a39bc9', C.skin2, '#2b2659', 'neat');
   const word = !rd.entered ? 'STAYED OUT' : fight ? 'PRICE WAR!' : 'WELCOME!';
   const line = !rd.entered
     ? 'The garage stays quiet. Safe, but you will never know.'
@@ -138,7 +138,7 @@ function Outcome({ st, onAgain }: { st: StartupState; onAgain: () => void }) {
       <Panel tone={fight ? 'red' : rd.entered ? 'teal' : 'night'} className="p-6">
         <div className="grid grid-cols-1 items-center gap-6 md:grid-cols-[auto_minmax(0,1fr)_auto]">
           <div className="flex flex-col items-center gap-2">
-            <Sprite {...founder} px={10} />
+            <Sprite {...founder} px={8} />
             <span className="font-pixel text-xs">STARTUP (CLASS)</span>
             <span className="font-mono text-6xl leading-none">{pay[0]}</span>
           </div>
@@ -147,7 +147,7 @@ function Outcome({ st, onAgain }: { st: StartupState; onAgain: () => void }) {
             <p className="text-2xl font-bold">{line}</p>
           </div>
           <div className="flex flex-col items-center gap-2">
-            <Sprite {...ceo} px={10} flip />
+            <Sprite {...ceo} px={8} flip />
             <span className="font-pixel text-xs">INCUMBENT</span>
             <span className="font-mono text-6xl leading-none">{pay[1]}</span>
           </div>

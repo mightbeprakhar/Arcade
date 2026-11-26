@@ -77,12 +77,12 @@ export function StartupSolve({ st }: { st: StartupState }) {
       tex: `\\text{Low: Fight } ${num(fightLow)} \\text{ vs Accommodate } ${num(accLow)} \\Rightarrow \\text{${s.low.choice}}`,
       note: st.credible ? 'With a reputation at stake, fighting in a weak market pays: the threat is now credible.' : 'Fight is never a best reply, so the threat is not credible and is pruned.',
     },
-    { tex: `EU(\\text{Enter}) = p\\cdot ${num(hi)} + (1-p)\\cdot ${lo < 0 ? `(${num(lo)})` : num(lo)} = ${num(+st.p.toFixed(3))}\\cdot ${num(hi)} + ${num(+(1 - st.p).toFixed(3))}\\cdot ${lo < 0 ? `(${num(lo)})` : num(lo)} = ${num(+s.euEnter.toFixed(3))}` },
+    { tex: [`EU(\\text{Enter}) = p\\cdot ${num(hi)} + (1-p)\\cdot ${lo < 0 ? `(${num(lo)})` : num(lo)}`, `= ${num(+st.p.toFixed(3))}\\cdot ${num(hi)} + ${num(+(1 - st.p).toFixed(3))}\\cdot ${lo < 0 ? `(${num(lo)})` : num(lo)} = ${num(+s.euEnter.toFixed(3))}`] },
     {
       tex: `EU(\\text{Enter}) = ${num(+s.euEnter.toFixed(3))} ${s.euEnter > 0 ? '>' : s.euEnter < 0 ? '<' : '='} ${num(STARTUP.stayOut[0])} = u(\\text{Stay out}) \\Rightarrow \\text{${s.decision}}`,
     },
     ...(s.breakEvenP !== null
-      ? [{ tex: `\\text{Break-even: } p\\cdot ${num(hi)} + (1-p)\\cdot ${lo < 0 ? `(${num(lo)})` : num(lo)} = 0 \\Rightarrow p^* = ${num(+s.breakEvenP.toFixed(4))}`, note: st.r > 0 ? 'With risk aversion the break-even uses utilities, so it moves up.' : 'Below this probability of high demand, the startup should stay out.' }]
+      ? [{ tex: [`\\text{Break-even: } p\\cdot ${num(hi)} + (1-p)\\cdot ${lo < 0 ? `(${num(lo)})` : num(lo)} = 0`, `\\Rightarrow p^* = ${num(+s.breakEvenP.toFixed(4))}`], note: st.r > 0 ? 'With risk aversion the break-even uses utilities, so it moves up.' : 'Below this probability of high demand, the startup should stay out.' }]
       : []),
   ];
   const riskLines: MathLine[] = [
@@ -99,13 +99,13 @@ export function StartupSolve({ st }: { st: StartupState }) {
         <Toggle checked={st.credible} onChange={st.setCredible} label="Credible threat" sub={`Low-demand Fight pays the incumbent ${STARTUP.credibleLowFight}`} />
         <Slider label="Risk aversion r" value={st.r} min={0} max={0.6} step={0.05} onChange={st.setR} format={(v) => v.toFixed(2)} />
       </div>
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-6">
         <Panel className="p-4">
           <div className="mb-4 flex flex-wrap items-center gap-3">
             <span className="chip text-gold">
               STEP {shown}/{STEPS.length}
             </span>
-            <span className="text-xl font-bold">{STEPS[shown - 1]}</span>
+            <span className="font-display text-xl font-bold">{STEPS[shown - 1]}</span>
           </div>
           <GameTree key={`${st.credible}`} root={tree(st.credible, st.p)} pruned={pruned} chosen={chosen} values={values} playerColors={{ Startup: '#5aa7ff', Incumbent: '#ef5a4b' }} />
           <Narration className="mt-4">

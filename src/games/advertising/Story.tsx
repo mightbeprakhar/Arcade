@@ -2,7 +2,7 @@ import { NextStageButton } from '../../components/GameShell';
 import { ActionWord, Bubble, Narration, Panel } from '../../components/comic';
 import { Sprite } from '../../components/pixel/Sprite';
 import { C, face } from '../../components/pixel/sprites';
-import { Notes } from '../../components/ui';
+import { Notes, rupeeK } from '../../components/ui';
 import { useBuildSteps } from '../../state/presenter';
 import { PD, ROUNDS, payoffs } from '../../engine/advertising';
 import { PixelShop } from './Shop';
@@ -15,13 +15,13 @@ export function AdStory({}: { accent?: string }) {
   const panels = [
     'Two coffee shops face each other across the campus gate: Brew Theory and Bean There.',
     'Every week each owner decides: spend on an ad blitz (Ad) or keep the money (Save).',
-    `Both save: steady business, ₹${ss}k profit each. Advertise alone and you steal customers: ₹${as}k for you, ₹${sa}k for them.`,
-    `Both advertise: the ads cancel out, but both paid for them. ₹${aa}k each.`,
+    `Both save: steady business, ${rupeeK(ss)} profit each. Advertise alone and you steal customers: ${rupeeK(as)} for you, ${rupeeK(sa)} for them.`,
+    `Both advertise: the ads cancel out, but both paid for them. ${rupeeK(aa)} each.`,
     `The class runs Brew Theory for ${ROUNDS} weeks against a rival with a fixed playbook. Build trust, or strike first?`,
   ];
   const { shown, advance } = useBuildSteps(panels.length, 1);
-  const owner = face(shown >= 4 ? 'grim' : 'smug', C.brown);
-  const rival = face(shown >= 4 ? 'grim' : 'happy', C.K, C.skin2);
+  const owner = face(shown >= 4 ? 'grim' : 'smug', C.brown, C.skin, C.blueD, 'short');
+  const rival = face(shown >= 4 ? 'grim' : 'happy', C.K, C.skin2, C.redD, 'long');
 
   return (
     <div className="space-y-6">
@@ -38,10 +38,10 @@ export function AdStory({}: { accent?: string }) {
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {shown >= 2 ? (
-          <Panel tone="blue" className="flex min-h-[16rem] flex-col justify-between p-4">
+          <Panel reveal tone="blue" className="flex min-h-[16rem] flex-col justify-between p-4">
             <Narration current={shown === 2}>{panels[1]}</Narration>
             <div className="flex items-end gap-4">
-              <Sprite {...owner} px={8} title="Brew Theory's owner" />
+              <Sprite {...owner} px={6} title="Brew Theory's owner" />
               <Bubble side="bottom-left">If I advertise, I steal her customers.</Bubble>
             </div>
           </Panel>
@@ -49,7 +49,7 @@ export function AdStory({}: { accent?: string }) {
           <Blank />
         )}
         {shown >= 3 ? (
-          <Panel tone="night" className="flex min-h-[16rem] flex-col justify-between gap-4 p-4">
+          <Panel reveal tone="night" className="flex min-h-[16rem] flex-col justify-between gap-4 p-4">
             <Narration current={shown === 3}>{panels[2]}</Narration>
             <div className="grid grid-cols-4 gap-2 text-center">
               {(
@@ -72,11 +72,11 @@ export function AdStory({}: { accent?: string }) {
           <Blank />
         )}
         {shown >= 4 ? (
-          <Panel tone="red" className="flex min-h-[16rem] flex-col justify-between p-4">
+          <Panel reveal tone="red" className="flex min-h-[16rem] flex-col justify-between p-4">
             <Narration current={shown === 4}>{panels[3]}</Narration>
             <div className="flex items-end justify-end gap-4">
               <Bubble side="bottom-right">She started it.</Bubble>
-              <Sprite {...rival} px={8} flip title="Bean There's owner" />
+              <Sprite {...rival} px={6} flip title="Bean There's owner" />
             </div>
           </Panel>
         ) : (
@@ -86,7 +86,7 @@ export function AdStory({}: { accent?: string }) {
 
       {shown >= 5 && (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-          <Panel tone="gold" className="p-6">
+          <Panel reveal tone="gold" className="p-6">
             <div className="font-pixel text-sm">YOUR MISSION</div>
             <p className="mt-3 text-2xl font-bold">{panels[4]}</p>
           </Panel>

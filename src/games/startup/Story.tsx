@@ -18,8 +18,8 @@ export function StartupStory() {
     'The class is the founder. Is the threat real, or just talk?',
   ];
   const { shown, advance } = useBuildSteps(panels.length, 1);
-  const founder = face(shown >= 3 ? 'scared' : 'happy', C.brown);
-  const ceo = face('smug', '#a39bc9', C.skin2);
+  const founder = face(shown >= 3 ? 'scared' : 'happy', C.brown, C.skin, C.teal, 'spiky');
+  const ceo = face('smug', '#a39bc9', C.skin2, '#2b2659', 'neat');
 
   return (
     <div className="space-y-6">
@@ -41,10 +41,10 @@ export function StartupStory() {
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {shown >= 2 ? (
-          <Panel tone="teal" className="flex min-h-[16rem] flex-col justify-between p-4">
+          <Panel reveal tone="teal" className="flex min-h-[16rem] flex-col justify-between p-4">
             <Narration current={shown === 2}>{panels[1]}</Narration>
             <div className="flex items-end gap-4">
-              <Sprite {...founder} px={9} title="The founder" />
+              <Sprite {...founder} px={7} title="The founder" />
               <Bubble side="bottom-left">A fortune… or flattened?</Bubble>
             </div>
           </Panel>
@@ -52,18 +52,18 @@ export function StartupStory() {
           <Blank />
         )}
         {shown >= 3 ? (
-          <Panel tone="red" className="flex min-h-[16rem] flex-col justify-between p-4">
+          <Panel reveal tone="red" className="flex min-h-[16rem] flex-col justify-between p-4">
             <Narration current={shown === 3}>{panels[2]}</Narration>
             <div className="flex items-end justify-end gap-4">
               <Bubble side="bottom-right">Try it. I dare you.</Bubble>
-              <Sprite {...ceo} px={9} flip title="The incumbent's CEO" />
+              <Sprite {...ceo} px={7} flip title="The incumbent's CEO" />
             </div>
           </Panel>
         ) : (
           <Blank />
         )}
         {shown >= 4 ? (
-          <Panel tone="night" className="flex min-h-[16rem] flex-col justify-between gap-4 p-4">
+          <Panel reveal tone="night" className="flex min-h-[16rem] flex-col justify-between gap-4 p-4">
             <Narration current={shown === 4}>{panels[3]}</Narration>
             <div className="flex items-center justify-around">
               <div className="border-4 border-black bg-teal p-3 text-center text-black">
@@ -84,7 +84,7 @@ export function StartupStory() {
 
       {shown >= 5 && (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-          <Panel tone="gold" className="p-6">
+          <Panel reveal tone="gold" className="p-6">
             <div className="flex items-center justify-between">
               <div className="font-pixel text-sm">YOUR CALL</div>
               <ActionWord text="ENTER?" size={24} />

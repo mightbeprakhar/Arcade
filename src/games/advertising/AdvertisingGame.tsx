@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { recordAdvertising } from '../../state/record';
 import { GameShell, type Stage } from '../../components/GameShell';
 import { metaById } from '../meta';
 import type { Move } from '../../engine/advertising';
@@ -22,6 +23,11 @@ export default function AdvertisingGame() {
   const [opponent, setOpponent] = useState('tft');
   const [classMoves, setClassMoves] = useState<Move[]>([]);
   const [aiMoves, setAiMoves] = useState<Move[]>([]);
+  // Record for Humans vs Nash the moment week 20 is played.
+  useEffect(() => {
+    recordAdvertising(classMoves, aiMoves, opponent);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [classMoves.length]);
   const st: AdState = {
     opponent,
     setOpponent,

@@ -157,6 +157,8 @@ export function Notes({ title, items }: { title: string; items: ReactNode[] }) {
 }
 
 export const rupee = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
+/** ₹ thousands with separators, e.g. ₹1,200k. */
+export const rupeeK = (n: number | string) => `₹${Math.round(Number(n)).toLocaleString('en-IN')}k`;
 export const signed = (n: number, d = 2) => {
   const s = Number.isInteger(n) ? String(n) : n.toFixed(d).replace(/\.?0+$/, '');
   return n > 0 ? `+${s}` : s;

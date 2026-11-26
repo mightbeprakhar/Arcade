@@ -74,13 +74,13 @@ export function ChickenSolve({ st, sol, accent }: { st: ChickenState; sol: Chick
       <div className="mb-6 max-w-xl">
         <Toggle checked={st.asymmetric} onChange={st.setAsymmetric} label="Asymmetric: truck vs car" sub="Re-solves everything below from the engine" />
       </div>
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-6">
         <div className="card">
           <div className="mb-4 flex flex-wrap items-center gap-3">
             <span className="chip text-gold">
               STEP {shown}/{LAYERS.length}
             </span>
-            <span className="text-xl font-bold">{LAYERS[shown - 1]}</span>
+            <span className="font-display text-xl font-bold">{LAYERS[shown - 1]}</span>
           </div>
           <PayoffMatrix game={g} bestResponses={shown >= 2} nash={shown >= 3} mixed={shown >= 4 ? sol.mixed : null} />
           <Narration className="mt-6">{EXPLAIN(R, C)[shown - 1]}</Narration>

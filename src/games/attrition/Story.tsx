@@ -16,8 +16,8 @@ export function AttStory() {
     'The class is roommate A. Every minute you vote: keep waiting, or give in.',
   ];
   const { shown, advance } = useBuildSteps(panels.length, 1);
-  const A = face(shown >= 4 ? 'grim' : 'smug', C.brown);
-  const B = face(shown >= 4 ? 'grim' : 'smug', C.K, C.skin2);
+  const A = face(shown >= 4 ? 'grim' : 'smug', C.brown, C.skin, C.blueD, 'short');
+  const B = face(shown >= 4 ? 'grim' : 'smug', C.K, C.skin2, C.redD, 'long');
 
   return (
     <div className="space-y-6">
@@ -33,10 +33,10 @@ export function AttStory() {
       </Panel>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {shown >= 2 ? (
-          <Panel tone="blue" className="flex min-h-[16rem] flex-col justify-between p-4">
+          <Panel reveal tone="blue" className="flex min-h-[16rem] flex-col justify-between p-4">
             <Narration current={shown === 2}>{panels[1]}</Narration>
             <div className="flex items-end gap-4">
-              <Sprite {...A} px={9} />
+              <Sprite {...A} px={7} />
               <Bubble side="bottom-left">Not it.</Bubble>
             </div>
           </Panel>
@@ -44,18 +44,18 @@ export function AttStory() {
           <Blank />
         )}
         {shown >= 3 ? (
-          <Panel tone="red" className="flex min-h-[16rem] flex-col justify-between p-4">
+          <Panel reveal tone="red" className="flex min-h-[16rem] flex-col justify-between p-4">
             <Narration current={shown === 3}>{panels[2]}</Narration>
             <div className="flex items-end justify-end gap-4">
               <Bubble side="bottom-right">Definitely not it.</Bubble>
-              <Sprite {...B} px={9} flip />
+              <Sprite {...B} px={7} flip />
             </div>
           </Panel>
         ) : (
           <Blank />
         )}
         {shown >= 4 ? (
-          <Panel tone="night" className="flex min-h-[16rem] flex-col justify-between gap-4 p-4">
+          <Panel reveal tone="night" className="flex min-h-[16rem] flex-col justify-between gap-4 p-4">
             <Narration current={shown === 4}>{panels[3]}</Narration>
             <div className="grid place-items-center">
               <ActionWord text={`-₹${c}/MIN`} size={28} />
@@ -67,7 +67,7 @@ export function AttStory() {
       </div>
       {shown >= 5 && (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-          <Panel tone="gold" className="p-6">
+          <Panel reveal tone="gold" className="p-6">
             <div className="font-pixel text-sm">YOUR MOVE, EVERY MINUTE</div>
             <p className="mt-2 text-2xl font-bold">{panels[4]}</p>
           </Panel>

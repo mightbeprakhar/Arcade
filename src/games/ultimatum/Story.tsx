@@ -20,8 +20,8 @@ export function UltStory() {
     'Round A: the class proposes to a stranger whose sense of fairness is hidden. Round B: the class sets its minimum before it sees the offer.',
   ];
   const { shown, advance } = useBuildSteps(panels.length, 1);
-  const P = face('smug', C.brown);
-  const R = face(shown >= 4 ? 'grim' : 'happy', C.K, C.skin2);
+  const P = face('smug', C.brown, C.skin, C.blueD, 'short');
+  const R = face(shown >= 4 ? 'grim' : 'happy', C.K, C.skin2, C.redD, 'long');
 
   return (
     <div className="space-y-6">
@@ -40,10 +40,10 @@ export function UltStory() {
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {shown >= 2 ? (
-          <Panel tone="blue" className="flex min-h-[16rem] flex-col justify-between p-4">
+          <Panel reveal tone="blue" className="flex min-h-[16rem] flex-col justify-between p-4">
             <Narration current={shown === 2}>{panels[1]}</Narration>
             <div className="flex items-end gap-4">
-              <Sprite {...P} px={9} title="The Proposer" />
+              <Sprite {...P} px={7} title="The Proposer" />
               <Bubble side="bottom-left">How about… a little for you?</Bubble>
             </div>
           </Panel>
@@ -51,18 +51,18 @@ export function UltStory() {
           <Blank />
         )}
         {shown >= 3 ? (
-          <Panel tone="red" className="flex min-h-[16rem] flex-col justify-between p-4">
+          <Panel reveal tone="red" className="flex min-h-[16rem] flex-col justify-between p-4">
             <Narration current={shown === 3}>{panels[2]}</Narration>
             <div className="flex items-end justify-end gap-4">
               <Bubble side="bottom-right">Lowball me and nobody eats.</Bubble>
-              <Sprite {...R} px={9} flip title="The Responder" />
+              <Sprite {...R} px={7} flip title="The Responder" />
             </div>
           </Panel>
         ) : (
           <Blank />
         )}
         {shown >= 4 ? (
-          <Panel tone="night" className="flex min-h-[16rem] flex-col justify-between gap-4 p-4">
+          <Panel reveal tone="night" className="flex min-h-[16rem] flex-col justify-between gap-4 p-4">
             <Narration current={shown === 4}>{panels[3]}</Narration>
             <div className="grid grid-cols-2 gap-3 text-center">
               <div className="border-4 border-black bg-teal p-2 text-black">
@@ -84,7 +84,7 @@ export function UltStory() {
 
       {shown >= 5 && (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-          <Panel tone="gold" className="p-6">
+          <Panel reveal tone="gold" className="p-6">
             <div className="flex items-center justify-between">
               <div className="font-pixel text-sm">TWO ROUNDS</div>
               <ActionWord text="DEAL?" size={24} />

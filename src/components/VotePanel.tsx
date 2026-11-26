@@ -70,7 +70,7 @@ export function VotePanel({
           return (
             <div key={o.id} className={`relative border-4 bg-deep p-3 ${isWinner ? 'border-gold' : 'border-black'}`}>
               <button className="block w-full text-left disabled:cursor-default" disabled={!tied} onClick={() => setTieBreak(o.id)}>
-                <div className={`text-2xl font-bold ${isWinner ? 'text-gold' : 'text-ink'}`}>{o.label}</div>
+                <div className={`font-display text-2xl font-bold ${isWinner ? 'text-gold' : 'text-ink'}`}>{o.label}</div>
                 {o.sub && <div className="text-sm text-ink-3">{o.sub}</div>}
                 {tied && <div className="text-sm text-gold">Tap to break the tie</div>}
               </button>

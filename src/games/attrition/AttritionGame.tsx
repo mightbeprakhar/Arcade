@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { recordAttrition } from '../../state/record';
 import { GameShell, type Stage } from '../../components/GameShell';
 import { metaById } from '../meta';
 import { AttStory } from './Story';
@@ -24,6 +25,9 @@ export default function AttritionGame() {
   const [escalating, setEscalating] = useState(false);
   const [g, setG] = useState(4);
   const [round, setRound] = useState<AttRound | null>(null);
+  useEffect(() => {
+    if (round) recordAttrition(round);
+  }, [round]);
   const st: AttState = { escalating, setEscalating, g, setG, round, setRound };
   const stages: Stage[] = [
     { id: 'story', label: 'Story', render: () => <AttStory /> },

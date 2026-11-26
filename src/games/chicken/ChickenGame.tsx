@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { recordChicken } from '../../state/record';
 import { GameShell, type Stage } from '../../components/GameShell';
 import { metaById } from '../meta';
 import { solveChicken, type Move } from '../../engine/chicken';
@@ -24,6 +25,11 @@ export default function ChickenGame() {
   const [voice, setVoice] = useState(false);
   const st: ChickenState = { asymmetric, setAsymmetric, outcome, setOutcome, voice, setVoice };
   const sol = useMemo(() => solveChicken(asymmetric), [asymmetric]);
+  // Record for Humans vs Nash as soon as the round's outcome is known.
+  useEffect(() => {
+    if (outcome) recordChicken(sol, outcome);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [outcome]);
 
   const stages: Stage[] = [
     { id: 'story', label: 'Story', render: () => <ChickenStory st={st} accent={meta.accent} /> },

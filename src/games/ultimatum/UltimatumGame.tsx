@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { recordUltimatum } from '../../state/record';
 import { GameShell, type Stage } from '../../components/GameShell';
 import { metaById } from '../meta';
 import { UltStory } from './Story';
@@ -24,6 +25,9 @@ export default function UltimatumGame() {
   const meta = metaById('ultimatum');
   const [mode, setMode] = useState<UltMode>('proposer');
   const [round, setRound] = useState<UltRound | null>(null);
+  useEffect(() => {
+    if (round) recordUltimatum(round);
+  }, [round]);
   const st: UltState = { mode, setMode, round, setRound };
   const stages: Stage[] = [
     { id: 'story', label: 'Story', render: () => <UltStory /> },

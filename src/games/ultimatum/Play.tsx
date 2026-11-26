@@ -63,11 +63,14 @@ export function UltPlay({ st }: { st: UltState }) {
               ['proposer', 'ROUND A · CLASS PROPOSES'],
               ['responder', 'ROUND B · CLASS RESPONDS'],
             ] as const
-          ).map(([m, l]) => (
-            <button key={m} onClick={() => switchMode(m)} aria-pressed={st.mode === m} disabled={phase !== 'vote' && st.mode !== m} className={`btn-ghost ${st.mode === m ? '!border-gold !text-gold' : ''}`}>
-              {l}
-            </button>
-          ))}
+          )
+            // Once a round is under way only its own tab shows; the next round is offered as a button at the end.
+            .filter(([m]) => phase === 'vote' || st.mode === m)
+            .map(([m, l]) => (
+              <button key={m} onClick={() => switchMode(m)} aria-pressed={st.mode === m} className={`btn-ghost ${st.mode === m ? '!border-gold !text-gold' : ''}`}>
+                {l}
+              </button>
+            ))}
         </div>
       </div>
 
@@ -95,17 +98,26 @@ export function UltPlay({ st }: { st: UltState }) {
       )}
 
       {phase === 'thinking' && pending && <Thinking round={pending} />}
-      {phase === 'done' && st.round && <Ending st={st} onAgain={again} />}
+      {phase === 'done' && st.round && (
+        <Ending
+          st={st}
+          onAgain={again}
+          onRoundB={() => {
+            again();
+            st.setMode('responder');
+          }}
+        />
+      )}
     </div>
   );
 }
 
 function Thinking({ round }: { round: NonNullable<UltState['round']> }) {
-  const R = face('grim', C.K, C.skin2);
+  const R = face('grim', C.K, C.skin2, C.redD, 'long');
   return (
     <Panel className="grid min-h-[22rem] place-items-center bg-[#241f52] p-6">
       <div className="flex items-end gap-6">
-        <Sprite {...R} px={12} flip />
+        <Sprite {...R} px={10} flip />
         <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 0.9, repeat: 1 }}>
           <Bubble side="bottom-left">{round.mode === 'proposer' ? `${r(round.offer)}? Hmm…` : 'The Proposer is writing an offer…'}</Bubble>
         </motion.div>
@@ -115,11 +127,11 @@ function Thinking({ round }: { round: NonNullable<UltState['round']> }) {
 }
 
 /** The two ending screens from the spec: "Accepted" or "Zero payout". */
-function Ending({ st, onAgain }: { st: UltState; onAgain: () => void }) {
+function Ending({ st, onAgain, onRoundB }: { st: UltState; onAgain: () => void; onRoundB: () => void }) {
   const rd = st.round!;
   const [pp, rr] = outcome(rd.offer, rd.accepted);
-  const P = face(rd.accepted ? 'happy' : 'shocked', C.brown);
-  const R = face(rd.accepted ? 'smug' : 'grim', C.K, C.skin2);
+  const P = face(rd.accepted ? 'happy' : 'shocked', C.brown, C.skin, C.blueD, 'short');
+  const R = face(rd.accepted ? 'smug' : 'grim', C.K, C.skin2, C.redD, 'long');
   const type = rd.mode === 'proposer' ? ALPHA_TYPES[rd.alphaIdx] : null;
   const thr = type ? (type.alpha === 0 ? 0 : fehrSchmidtThreshold(type.alpha)) : null;
 
@@ -128,7 +140,7 @@ function Ending({ st, onAgain }: { st: UltState; onAgain: () => void }) {
       <Panel tone={rd.accepted ? 'teal' : 'red'} className="p-6">
         <div className="grid grid-cols-1 items-center gap-6 md:grid-cols-[auto_minmax(0,1fr)_auto]">
           <div className="flex flex-col items-center gap-2">
-            <Sprite {...P} px={10} />
+            <Sprite {...P} px={8} />
             <span className="font-pixel text-xs">PROPOSER{rd.mode === 'proposer' ? ' (CLASS)' : ''}</span>
             <span className="font-mono text-6xl leading-none">{r(pp)}</span>
           </div>
@@ -139,7 +151,7 @@ function Ending({ st, onAgain }: { st: UltState; onAgain: () => void }) {
             </div>
           </div>
           <div className="flex flex-col items-center gap-2">
-            <Sprite {...R} px={10} flip />
+            <Sprite {...R} px={8} flip />
             <span className="font-pixel text-xs">RESPONDER{rd.mode === 'responder' ? ' (CLASS)' : ''}</span>
             <span className="font-mono text-6xl leading-none">{r(rr)}</span>
           </div>
@@ -158,7 +170,16 @@ function Ending({ st, onAgain }: { st: UltState; onAgain: () => void }) {
         <button className="btn-ghost" onClick={onAgain}>
           ↺ PLAY AGAIN
         </button>
-        <NextStageButton label="SOLVE IT" />
+        {rd.mode === 'proposer' ? (
+          <>
+            <button className="btn-primary" onClick={onRoundB}>
+              NEXT: ROUND B ▶
+            </button>
+            <NextStageButton label="SKIP TO SOLVE" quiet />
+          </>
+        ) : (
+          <NextStageButton label="SOLVE IT" />
+        )}
       </div>
     </motion.div>
   );

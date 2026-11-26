@@ -1,3 +1,4 @@
+import { rupeeK } from '../../components/ui';
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { SERIES, axis, grid, legend, tooltip } from '../../components/chartTheme';
 import { ROUNDS, payoffs, type Move } from '../../engine/advertising';
@@ -65,8 +66,8 @@ export function CumulativeChart({ a, b, nameA, nameB }: { a: Move[]; b: Move[]; 
         <LineChart data={data} margin={{ top: 10, right: 24, left: 10, bottom: 10 }}>
           <CartesianGrid {...grid} />
           <XAxis dataKey="round" type="number" domain={[0, ROUNDS]} ticks={[0, 5, 10, 15, 20]} {...axis} />
-          <YAxis {...axis} width={60} tickFormatter={(v: number) => `₹${v}k`} />
-          <Tooltip {...tooltip} formatter={(v: number) => `₹${v}k`} labelFormatter={(l) => `after week ${l}`} />
+          <YAxis {...axis} width={60} tickFormatter={(v: number) => rupeeK(v)} />
+          <Tooltip {...tooltip} formatter={(v: number) => rupeeK(v)} labelFormatter={(l) => `after week ${l}`} />
           <Legend {...legend} />
           <Line type="linear" dataKey="a" name={nameA} stroke={SERIES.pen} strokeWidth={2} dot={{ r: 4 }} isAnimationActive={false} />
           <Line type="linear" dataKey="b" name={nameB} stroke={SERIES.graphite} strokeWidth={2} strokeDasharray="6 4" dot={{ r: 4 }} isAnimationActive={false} />

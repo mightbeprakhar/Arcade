@@ -29,7 +29,7 @@ function Stars() {
 
 export default function Hub() {
   const results = useResults();
-  const { presenter, togglePresenter } = usePresenter();
+  const { togglePresenter } = usePresenter();
   const played = GAMES.filter((g) => results[g.id]).length;
 
   useEffect(() => {
@@ -43,8 +43,8 @@ export default function Hub() {
     return () => window.removeEventListener('keydown', onKey);
   }, [togglePresenter]);
 
-  const a = face('grim', C.brown);
-  const b = face('smug', C.K);
+  const a = face('grim', C.brown, C.skin, C.blueD, 'short');
+  const b = face('smug', C.K, C.skin, C.redD, 'spiky');
 
   return (
     <div className="relative min-h-screen">
@@ -62,9 +62,6 @@ export default function Hub() {
               <Link to={GAMES[0].path} className="btn-primary">
                 PRESS START ▶
               </Link>
-              <button className={presenter ? 'btn-primary' : 'btn-ghost'} onClick={togglePresenter} aria-pressed={presenter}>
-                PRESENTER {presenter ? 'ON' : 'OFF'}
-              </button>
               <button className="btn-text" onClick={toggleFullscreen}>
                 FULLSCREEN [F]
               </button>
@@ -77,11 +74,11 @@ export default function Hub() {
               <div className="grid grid-cols-2">
                 <div className="flex flex-col items-start gap-6 border-r-4 border-black p-6">
                   <Bubble side="bottom-left">I’m not swerving.</Bubble>
-                  <Sprite {...a} px={9} title="Driver A, determined" />
+                  <Sprite {...a} px={7} title="Driver A, determined" />
                 </div>
                 <div className="flex flex-col items-end gap-6 p-6">
                   <Bubble side="bottom-right">Neither am I.</Bubble>
-                  <Sprite {...b} px={9} flip title="Driver B, smug" />
+                  <Sprite {...b} px={7} flip title="Driver B, smug" />
                 </div>
               </div>
               <div className="border-t-4 border-black bg-gold px-4 py-2 text-lg text-black">
@@ -111,7 +108,7 @@ export default function Hub() {
                       <span className="font-pixel text-xs text-gold">LEVEL {g.number}</span>
                       {done && <span className="chip bg-teal text-black">CLEARED</span>}
                     </div>
-                    <div className="mt-3 text-3xl font-bold">{g.title}</div>
+                    <div className="mt-3 font-display text-3xl font-bold">{g.title}</div>
                     <div className="mt-1 text-lg text-teal">{g.concept}</div>
                     <p className="mt-3 flex-1 text-xl text-ink-2">{g.hook}</p>
                     <span className="mt-4 font-pixel text-xs text-ink group-hover:text-gold">PLAY ▶</span>
@@ -130,7 +127,7 @@ export default function Hub() {
               </div>
               <div className="flex flex-1 flex-col p-4">
                 <span className="font-pixel text-xs">FINAL SCREEN</span>
-                <div className="mt-3 text-3xl font-bold">Humans vs Nash</div>
+                <div className="mt-3 font-display text-3xl font-bold">Humans vs Nash</div>
                 <p className="mt-3 flex-1 text-xl">What the class did against what theory predicted, with the payoff gap.</p>
                 <span className="mt-4 font-pixel text-xs">
                   {played}/{GAMES.length} CLEARED ▶

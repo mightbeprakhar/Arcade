@@ -1,10 +1,8 @@
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Notes, SectionTitle, Takeaways, VersusCard } from '../../components/ui';
 import { NextStageButton } from '../../components/GameShell';
 import { Narration } from '../../components/comic';
 import { PIE, STEP, outcome, rationalAccepts, spne } from '../../engine/ultimatum';
-import { recordResult } from '../../state/results';
 import type { UltState } from './UltimatumGame';
 
 const r = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
@@ -21,11 +19,6 @@ export function UltDebrief({ st }: { st: UltState }) {
     : null;
   const choice = rd ? (rd.mode === 'proposer' ? `Offered ${r(rd.offer)}: ${rd.accepted ? 'accepted' : 'rejected'}` : `Minimum ${r(rd.min)}; offered ${r(rd.offer)}: ${rd.accepted ? 'accepted' : 'rejected'}`) : '';
 
-  useEffect(() => {
-    if (!rd || !nash) return;
-    recordResult('ultimatum', { classChoice: choice, classPayoff: classPay, nashPrediction: nash.label, nashPayoff: nash.pay, unit: '₹' });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rd]);
 
   return (
     <div>

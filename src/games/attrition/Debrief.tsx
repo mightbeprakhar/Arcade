@@ -1,10 +1,8 @@
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Notes, SectionTitle, Takeaways, VersusCard } from '../../components/ui';
 import { NextStageButton } from '../../components/GameShell';
 import { Narration } from '../../components/comic';
 import { ATTRITION, attritionPayoffs, solveSymmetric } from '../../engine/attrition';
-import { recordResult } from '../../state/results';
 import type { AttState } from './AttritionGame';
 
 export function AttDebrief({ st }: { st: AttState }) {
@@ -15,11 +13,6 @@ export function AttDebrief({ st }: { st: AttState }) {
   const choice = rd ? `${rd.classConceded ? 'Conceded' : 'Outlasted the roommate'} after ${rd.minute} min` : '';
   const nashLabel = `Quit at rate λ = ${s.lambda}/min (mean ${s.meanPerPlayer} min)`;
 
-  useEffect(() => {
-    if (!rd) return;
-    recordResult('attrition', { classChoice: choice, classPayoff: Math.round(pay), nashPrediction: nashLabel, nashPayoff: s.expectedPayoff, unit: '₹' });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rd]);
 
   return (
     <div>

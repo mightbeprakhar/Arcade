@@ -20,10 +20,10 @@ export function AttSolve({ st }: { st: AttState }) {
   const h = asymmetricHazards(c, V, cB, VB);
 
   const lines: MathLine[] = [
-    { tex: `\\text{In a tiny moment } dt:\\quad \\text{wait} \\Rightarrow \\text{pay } c\\,dt,\\quad \\quad  \\text{win } V \\text{ with prob. } \\lambda\\,dt`, note: 'λ is the rival’s quitting rate (hazard): the chance they give in right now, per minute.' },
+    { tex: [`\\text{In a tiny moment } dt:\\quad \\text{wait} \\Rightarrow \\text{pay } c\\,dt`, `\\text{win } V \\text{ with prob. } \\lambda\\,dt`], note: 'λ is the rival’s quitting rate (hazard): the chance they give in right now, per minute.' },
     { tex: `\\text{Indifferent between waiting and quitting} \\iff \\lambda V = c`, note: 'If you weren’t indifferent you wouldn’t randomise; you’d always wait or always quit.' },
-    { tex: `\\lambda^* = \\frac{c}{V} = \\frac{${c}}{${V}} = ${num(s.lambda)} \\text{ per minute} \\Rightarrow \\text{mean } \\frac{1}{\\lambda} = ${num(s.meanPerPlayer)} \\text{ min}` },
-    { tex: `\\text{Standoff ends at the first quit: rate } 2\\lambda \\Rightarrow E[T] = \\frac{1}{2\\lambda} = ${num(s.expectedStandoff)} \\text{ min}` },
+    { tex: [`\\lambda^* = \\frac{c}{V} = \\frac{${c}}{${V}} = ${num(s.lambda)} \\text{ per minute}`, `\\Rightarrow \\text{mean } \\frac{1}{\\lambda} = ${num(s.meanPerPlayer)} \\text{ min}`] },
+    { tex: [`\\text{Standoff ends at the first quit: rate } 2\\lambda`, `\\Rightarrow E[T] = \\frac{1}{2\\lambda} = ${num(s.expectedStandoff)} \\text{ min}`] },
     { tex: `\\text{Total waiting cost} = 2c \\cdot E[T] = 2\\cdot ${c}\\cdot ${num(s.expectedStandoff)} = ${num(s.expectedTotalCost)} = V`, note: 'Full rent dissipation: on average the fight burns the entire prize. Expected payoff of each player: ₹0.' },
     { tex: `P(\\text{both still waiting at } 10) = e^{-2\\lambda\\cdot 10} = e^{-2} \\approx ${s.bothWaitingAt(10).toFixed(3)}` },
   ];
@@ -39,7 +39,7 @@ export function AttSolve({ st }: { st: AttState }) {
   return (
     <div>
       <SectionTitle kicker="SOLVE" title="The rate of giving up" />
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6">
         <MathBlock title="Symmetric mixed equilibrium" lines={lines} />
         <div className="space-y-6">
           <div className="grid grid-cols-3 gap-4">
@@ -63,7 +63,7 @@ export function AttSolve({ st }: { st: AttState }) {
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
+      <div className="mt-6 grid grid-cols-1 gap-6 2xl:grid-cols-2">
         <Panel className="p-4">
           <h3 className="text-sm">SURVIVAL: STILL WAITING AT TIME t</h3>
           <div className="mt-4 h-72">

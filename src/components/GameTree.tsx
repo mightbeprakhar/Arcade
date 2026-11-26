@@ -68,7 +68,7 @@ export function GameTree({
   placed.forEach((p) => p.node.children?.forEach((e) => edges.push({ from: p, to: placed.get(e.to.id)!, e })));
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="h-auto w-full" role="img" aria-label="Game tree">
+    <svg viewBox={`0 0 ${width} ${height}`} className="mx-auto block h-auto w-full max-w-4xl" role="img" aria-label="Game tree">
       {edges.map(({ from, to, e }) => {
         const isPruned = pruned.has(e.id);
         const isChosen = chosen.has(e.id);

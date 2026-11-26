@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { FitWidth } from './FitWidth';
 import { colBestResponses, pureNash, rowBestResponses, type Bimatrix, type Cell } from '../engine/bimatrix';
 
 export const ROW_COLOR = '#5aa7ff'; // player A
@@ -59,7 +60,8 @@ export function PayoffMatrix({
   const ul = { textDecoration: 'underline', textUnderlineOffset: 6, textDecorationThickness: 2 } as const;
 
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="w-full">
+      <FitWidth>
       <table className="mx-auto border-separate" style={{ borderSpacing: compact ? 8 : 12 }}>
         <thead>
           <tr>
@@ -116,6 +118,7 @@ export function PayoffMatrix({
           ))}
         </tbody>
       </table>
+      </FitWidth>
       {legend && (bestResponses || nash || mixed) && (
         <div className="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-1 text-lg text-ink-2">
           {bestResponses && <span><span className="underline decoration-2 underline-offset-4">Underlined</span>: best response</span>}

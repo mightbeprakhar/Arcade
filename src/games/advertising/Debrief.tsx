@@ -1,9 +1,7 @@
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { SectionTitle, Takeaways, VersusCard } from '../../components/ui';
+import { SectionTitle, Takeaways, VersusCard, rupeeK } from '../../components/ui';
 import { NextStageButton } from '../../components/GameShell';
 import { PD, ROUNDS, finiteHorizonSPNE, grimDeltaThreshold, strategyById } from '../../engine/advertising';
-import { recordResult } from '../../state/results';
 import { cumulative } from './Tally';
 import type { AdState } from './AdvertisingGame';
 
@@ -16,17 +14,6 @@ export function AdDebrief({ st, accent }: { st: AdState; accent: string }) {
   const nashTotal = spne.length * PD.P;
   const opp = strategyById(st.opponent);
 
-  useEffect(() => {
-    if (!done) return;
-    recordResult('advertising', {
-      classChoice: `Ad ${ads}/${ROUNDS} weeks vs ${opp.name}`,
-      classPayoff: total,
-      nashPrediction: `Ad every week (SPNE)`,
-      nashPayoff: nashTotal,
-      unit: '₹k',
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [done]);
 
   return (
     <div>
@@ -34,9 +21,9 @@ export function AdDebrief({ st, accent }: { st: AdState; accent: string }) {
       {done ? (
         <VersusCard
           classChoice={`Advertised ${ads} of ${ROUNDS} weeks vs ${opp.name}`}
-          classPayoff={`₹${total}k`}
+          classPayoff={rupeeK(total)}
           nashPrediction="Ad every week (backward induction)"
-          nashPayoff={`₹${nashTotal}k`}
+          nashPayoff={rupeeK(nashTotal)}
           unit="over 20 weeks"
         />
       ) : (
