@@ -27,8 +27,10 @@ describe('design system', () => {
     const bad = src.filter(({ s }) => /\p{Extended_Pictographic}/u.test(s.replace(/[←→↑↓−–—·×◀▶▪★]/g, ''))).map(({ p }) => p);
     expect(bad).toEqual([]);
   });
-  it('no soft glows, blur or smooth gradients (hard shadows and halftone only)', () => {
-    const bad = src.filter(({ s }) => /linear-gradient|bg-gradient|blur|shadow-(sm|md|lg|xl|2xl|inner)\b|drop-shadow|text-transparent|0 0 \d+px/.test(s)).map(({ p }) => p);
+  // The home page (arcade floor) deliberately uses a gradient title, neon glow and a floor glow;
+  // the game screens stay flat: hard comic shadows and halftone only.
+  it('game screens: no soft glows, blur or smooth gradients', () => {
+    const bad = src.filter(({ p }) => p.startsWith('src/games/') || p.startsWith('src/components/')).filter(({ s }) => /linear-gradient|bg-gradient|blur|shadow-(sm|md|lg|xl|2xl|inner)\b|drop-shadow|text-transparent|0 0 \d+px/.test(s)).map(({ p }) => p);
     expect(bad).toEqual([]);
   });
   it('nothing animates forever', () => {

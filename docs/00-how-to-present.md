@@ -52,7 +52,7 @@ Results, predictions and points are kept for the current browser tab: refreshing
 
 ## Suggested running order and timing (about 40 minutes)
 
-1. Hub, 1 min: show the arcade cabinet's attract mode and the game cards.
+1. Hub, 1 min: walk the arcade floor: five cabinets, each looping its game's teaser (click one to open it), and the High Scores machine for Humans vs Nash.
 2. **Chicken**, 10 min: the flagship game. Do every stage.
 3. Ultimatum, 7 min: round A (class proposes), then the tree in Solve.
 4. Advertising, 8 min: play 3–4 weeks live, then autoplay the rest; show the tournament at 0% and 5% noise.

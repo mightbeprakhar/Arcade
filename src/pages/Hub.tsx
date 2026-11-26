@@ -1,38 +1,60 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { GAMES } from '../games/meta';
-import { beatNashFor, clearAllResults, pointsFor, usePredictions, useResults, type GameId } from '../state/results';
+import { beatNashFor, clearAllResults, pointsFor, usePredictions, useResults } from '../state/results';
 import { usePresenter, toggleFullscreen } from '../state/presenter';
-import { Sprite } from '../components/pixel/Sprite';
-import { chickenThumb, icons } from '../components/pixel/sprites';
 import { ArcadeCabinet } from '../components/ArcadeCabinet';
+import { BackgroundFx, NeonOpen, StringLights } from './hub/Decor';
 
-const THUMBS: Record<GameId, { map: string[]; pal: Record<string, string> }> = {
-  ultimatum: icons.coins,
-  chicken: chickenThumb,
-  advertising: icons.cup,
-  attrition: icons.bin,
-  startup: icons.rocket,
-};
-
-/** Static pixel starfield (deterministic, no animation). */
-function Stars() {
-  const stars = useMemo(() => Array.from({ length: 80 }, (_, i) => ({ x: (i * 197) % 1440, y: (i * 89) % 900, s: i % 5 ? 3 : 6, o: 0.2 + (i % 4) * 0.15 })), []);
+/** The sixth machine: a high-score board for Humans vs Nash. */
+function HighScores({ played, total, rows }: { played: number; total: number; rows: { n: number; title: string; pts: number | null; beat: boolean }[] }) {
   return (
-    <svg className="pixel pointer-events-none fixed inset-0 h-full w-full" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden>
-      {stars.map((s, i) => (
-        <rect key={i} x={s.x} y={s.y} width={s.s} height={s.s} fill="#fff4dc" opacity={s.o} />
-      ))}
-    </svg>
+    <Link
+      to="/results"
+      aria-label={`Humans vs Nash: ${played} of ${GAMES.length} games played, ${total} points`}
+      className="group block select-none focus:outline-none focus-visible:outline focus-visible:outline-4 focus-visible:outline-gold"
+    >
+      <div className="border-4 border-black bg-[#ff4fd8] px-2 py-2 text-center shadow-hard halftone">
+        <div className="min-h-[2.5em] font-pixel text-xs leading-tight text-[#1a0b3a]">HIGH SCORES</div>
+        <div className="mt-1 font-pixel text-[8px] text-[#1a0b3a]">HUMANS VS NASH</div>
+      </div>
+      <div className="border-4 border-t-0 border-black bg-[#1a0b3a] px-3 pb-3 pt-3 shadow-hard">
+        <div className="border-4 border-black bg-black p-2">
+          <ol className="space-y-1">
+            {rows.map((r) => (
+              <li key={r.n} className="flex items-baseline justify-between gap-2">
+                <span className="font-pixel text-[8px] text-ink-3">G{r.n}</span>
+                <span className={`font-mono text-2xl leading-none ${r.pts === null ? 'text-ink-3' : 'text-gold'}`}>{r.pts === null ? '---' : r.pts.toLocaleString('en-IN')}</span>
+                <span className="w-3 text-center text-gold">{r.beat ? '★' : ''}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-2 text-center">
+          <div className="border-4 border-black bg-deep p-1">
+            <div className="font-pixel text-[8px] text-ink-3">PLAYED</div>
+            <div className="font-mono text-3xl leading-none">
+              {played}/{GAMES.length}
+            </div>
+          </div>
+          <div className="border-4 border-black bg-deep p-1">
+            <div className="font-pixel text-[8px] text-ink-3">POINTS</div>
+            <div className="font-mono text-3xl leading-none text-gold">{total.toLocaleString('en-IN')}</div>
+          </div>
+        </div>
+        <div className="mt-3 border-4 border-black bg-gold py-1 text-center font-pixel text-[8px] text-black group-hover:bg-[#ffd76e]">SEE RESULTS ▶</div>
+      </div>
+    </Link>
   );
 }
 
 export default function Hub() {
   const results = useResults();
   const preds = usePredictions();
-  const totalPts = GAMES.reduce((s, g) => s + (pointsFor(g.id, results, preds) ?? 0), 0);
   const { togglePresenter } = usePresenter();
   const played = GAMES.filter((g) => results[g.id]).length;
+  const rows = GAMES.map((g) => ({ n: g.number, title: g.title, pts: pointsFor(g.id, results, preds), beat: beatNashFor(results[g.id]) }));
+  const total = rows.reduce((s, r) => s + (r.pts ?? 0), 0);
 
   useEffect(() => {
     document.title = 'Game Theory Arcade';
@@ -45,96 +67,78 @@ export default function Hub() {
     return () => window.removeEventListener('keydown', onKey);
   }, [togglePresenter]);
 
-
   return (
-    <div className="relative min-h-screen">
-      <Stars />
+    <div className="relative min-h-screen overflow-x-hidden">
+      <BackgroundFx />
       <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-12 sm:px-8">
-        <header className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
-          <div className="min-w-0">
-            <h1 className="text-4xl leading-tight text-gold sm:text-5xl" style={{ textShadow: '6px 6px 0 #0f0d22' }}>
-              GAME THEORY
-              <br />
-              <span className="text-ink">ARCADE</span>
-            </h1>
-            <p className="mt-6 max-w-xl text-2xl text-ink-2">Five games. The class plays each one live, then Nash reveals what “rational” would have done.</p>
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              <Link to={GAMES[0].path} className="btn-primary">
-                PRESS START ▶
-              </Link>
-              <button
-                className="btn-ghost"
-                onClick={() => {
-                  if (window.confirm('Start a new session? This clears every game result, prediction and point in this tab.')) clearAllResults();
-                }}
-              >
-                ↺ NEW SESSION
-              </button>
-              <button className="btn-text" onClick={toggleFullscreen}>
-                FULLSCREEN [F]
-              </button>
-            </div>
+        <header className="text-center">
+          <h1 className="text-4xl sm:text-6xl">
+            {/* Each line carries its own cyan-to-magenta fill. */}
+            <span className="arcade-title inline-block">GAME THEORY</span>
+            <br />
+            <span className="arcade-title inline-block">ARCADE</span>
+          </h1>
+          <p className="mx-auto mt-8 max-w-2xl text-2xl text-ink-2">Five games. The class plays each one live, then Nash reveals what “rational” would have done.</p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <Link to={GAMES[0].path} className="btn-primary">
+              PRESS START ▶
+            </Link>
+            <button
+              className="btn-ghost"
+              onClick={() => {
+                if (window.confirm('Start a new session? This clears every game result, prediction and point in this tab.')) clearAllResults();
+              }}
+            >
+              ↺ NEW SESSION
+            </button>
+            <button className="btn-text" onClick={toggleFullscreen}>
+              FULLSCREEN [F]
+            </button>
           </div>
-
-          <ArcadeCabinet />
         </header>
 
-        <section className="mt-16" aria-label="Choose a game">
-          <h2 className="mb-6 text-sm text-ink-3">CHOOSE A GAME</h2>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {GAMES.map((g) => {
-              const done = !!results[g.id];
-              const pts = pointsFor(g.id, results, preds);
-              const beat = beatNashFor(results[g.id]);
-              const t = THUMBS[g.id];
-              return (
-                <Link
-                  key={g.id}
-                  to={g.path}
-                  className="group flex flex-col border-4 border-black bg-panel shadow-hard transition-transform duration-100 ease-out hover:-translate-x-1 hover:-translate-y-1 focus:outline-none focus-visible:outline focus-visible:outline-4 focus-visible:outline-gold active:translate-x-1 active:translate-y-1"
-                >
-                  <div className="flex h-32 items-center justify-center border-b-4 border-black bg-deep halftone-light">
-                    <Sprite map={t.map} pal={t.pal} px={g.id === 'chicken' ? 9 : 8} title={`${g.title} icon`} />
+        {/* The arcade floor: wall with string lights and a neon sign, six machines, a checkered floor. */}
+        <section className="relative mt-16 overflow-hidden border-4 border-black bg-[#2b1d63] shadow-hard" aria-label="Choose a game">
+          <StringLights />
+          <div className="absolute right-6 top-16 hidden sm:block">
+            <NeonOpen />
+          </div>
+          <div className="absolute inset-x-0 bottom-0 h-40 overflow-hidden" aria-hidden>
+            <div className="checker-floor absolute -inset-x-1/4 top-0 h-[200%]" />
+          </div>
+          <div className="relative px-4 pb-8 pt-24 sm:px-6">
+            <h2 className="mb-6 text-sm text-ink-2">CHOOSE A GAME</h2>
+            <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 lg:grid lg:grid-cols-6 lg:overflow-visible lg:pb-0">
+              {GAMES.map((g) => {
+                const r = results[g.id];
+                const pts = pointsFor(g.id, results, preds);
+                return (
+                  <div key={g.id} className="w-[200px] shrink-0 snap-start lg:w-auto">
+                    <ArcadeCabinet
+                      only={g.id}
+                      size="sm"
+                      badge={
+                        r ? (
+                          <span className="chip bg-teal text-black">
+                            PLAYED · {(pts ?? 0).toLocaleString('en-IN')}
+                            {beatNashFor(r) ? ' ★' : ''}
+                          </span>
+                        ) : null
+                      }
+                    />
+                    <p className="mt-3 text-center text-base text-ink-2">{g.concept}</p>
                   </div>
-                  <div className="flex flex-1 flex-col p-4">
-                    <div className="flex items-center justify-between">
-                      <span className="font-pixel text-xs text-gold">GAME {g.number}</span>
-                      {done && <span className="chip bg-teal text-black">PLAYED</span>}
-                    </div>
-                    <div className="mt-3 font-display text-3xl font-bold">{g.title}</div>
-                    <div className="mt-1 text-lg text-teal">{g.concept}</div>
-                    <p className="mt-3 flex-1 text-xl text-ink-2">{g.hook}</p>
-                    <div className="mt-4 flex flex-wrap items-center gap-2">
-                      <span className="font-pixel text-xs text-ink group-hover:text-gold">PLAY ▶</span>
-                      {pts !== null && <span className="chip ml-auto text-gold">{pts.toLocaleString('en-IN')} PTS</span>}
-                      {beat && <span className="chip bg-gold text-black">★ BEAT NASH</span>}
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-            <Link
-              to="/results"
-              className="group flex flex-col border-4 border-black bg-gold text-black shadow-hard transition-transform duration-100 ease-out hover:-translate-x-1 hover:-translate-y-1 focus:outline-none focus-visible:outline focus-visible:outline-4 focus-visible:outline-ink halftone"
-            >
-              <div className="flex h-32 items-center justify-center border-b-4 border-black">
-                <span className="font-pixel text-4xl" style={{ textShadow: '4px 4px 0 #fff4dc' }}>
-                  VS
-                </span>
+                );
+              })}
+              <div className="w-[200px] shrink-0 snap-start lg:w-auto">
+                <HighScores played={played} total={total} rows={rows} />
+                <p className="mt-3 text-center text-base text-ink-2">The closing screen</p>
               </div>
-              <div className="flex flex-1 flex-col p-4">
-                <span className="font-pixel text-xs">FINAL SCREEN</span>
-                <div className="mt-3 font-display text-3xl font-bold">Humans vs Nash</div>
-                <p className="mt-3 flex-1 text-xl">What the class did against what theory predicted, with the payoff gap.</p>
-                <span className="mt-4 font-pixel text-xs">
-                  {played}/{GAMES.length} PLAYED · {totalPts.toLocaleString('en-IN')} PTS ▶
-                </span>
-              </div>
-            </Link>
+            </div>
           </div>
         </section>
 
-        <footer className="mt-12 flex flex-wrap gap-x-6 gap-y-2 text-lg text-ink-3">
+        <footer className="mt-12 flex flex-wrap justify-center gap-x-6 gap-y-2 text-lg text-ink-3">
           <span>
             <span className="kbd">→</span> / <span className="kbd">SPACE</span> / <span className="kbd">PGDN</span> next step
           </span>

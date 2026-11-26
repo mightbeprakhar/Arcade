@@ -84,6 +84,34 @@ svg.pixel, .pixelated { image-rendering: pixelated; shape-rendering: crispEdges;
 
 input[type='range'] { @apply w-full cursor-pointer; accent-color: #ffcc4d; height: 28px; }
 
+/* ---------- Home page: the arcade floor ---------- */
+/* Chunky pixel title: cyan-to-magenta fill, dark outline, hard drop shadow. */
+.arcade-title {
+  background: linear-gradient(180deg, #5ef0ff 0%, #22d3ee 38%, #c04dff 62%, #ff4fd8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-stroke: 3px #1a0b3a;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 6px 0 #1a0b3a) drop-shadow(6px 6px 0 #0f0d22);
+  line-height: 1.15;
+}
+/* Purple glow along the bottom of the page. */
+.floor-glow { background: radial-gradient(60% 100% at 50% 100%, rgba(170, 60, 255, 0.45), rgba(120, 40, 220, 0.18) 45%, transparent 75%); }
+/* Checkered arcade floor, tilted away from the viewer. */
+.checker-floor {
+  background-color: #2b1d63;
+  background-image: repeating-conic-gradient(#4b2f9e 0 25%, #2b1d63 0 50%);
+  background-size: 64px 64px;
+  transform: perspective(500px) rotateX(55deg);
+  transform-origin: top center;
+}
+/* Neon sign glow. */
+.neon { text-shadow: 0 0 4px #ff8ff0, 0 0 12px #ff4fd8, 0 0 24px #c04dff; }
+/* Slow ambient float for the background pixel shapes (stops under reduced motion, see below). */
+@keyframes float-y { 0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); } 50% { transform: translateY(-14px) rotate(calc(var(--r, 0deg) + 8deg)); } }
+.float-slow { animation: float-y 9s ease-in-out infinite; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
