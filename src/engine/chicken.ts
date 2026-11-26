@@ -1,4 +1,4 @@
-import { Bimatrix, Cell, mixedNash, nashProduct, pureNash, expectedPayoffs, type MixedNE } from './bimatrix';
+import { Bimatrix, Cell, colBestResponses, mixedNash, nashProduct, pureNash, expectedPayoffs, type MixedNE } from './bimatrix';
 import { Rng, defaultRng } from './random';
 
 /** Strategy index: 0 = Swerve (S), 1 = Drive straight (D). */
@@ -98,4 +98,50 @@ export function simulateEncounters(game: Bimatrix, pRow: number, pCol: number, n
     expected: expectedPayoffs(game, pRow, pCol),
     crashSeries,
   };
+}
+
+/* ---------- Best-of-5 series against an AI driver ---------- */
+
+export const BEST_OF = 5;
+export type RoundWinner = 'class' | 'ai' | 'none';
+
+/** The AI drives the column car and goes straight with its MSNE probability. */
+export function aiChickenMove(sol: ChickenSolution, rng: Rng = defaultRng): Move {
+  return rng() < sol.mixed.colP1 ? STRAIGHT : SWERVE;
+}
+
+/**
+ * "Commit" power-up: the class visibly locks itself into Straight before the AI moves.
+ * The AI then simply best-responds to Straight.
+ */
+export function commitResponse(game: Bimatrix): Move {
+  return colBestResponses(game, STRAIGHT)[0];
+}
+
+/** A round is won by whoever got the higher payoff; equal payoffs (both swerve, crash) are a draw. */
+export function roundWinner([a, b]: [number, number]): RoundWinner {
+  return a > b ? 'class' : b > a ? 'ai' : 'none';
+}
+
+export function seriesTally(rounds: { a: Move; b: Move }[], game: Bimatrix) {
+  let classWins = 0;
+  let aiWins = 0;
+  let classTotal = 0;
+  let crashes = 0;
+  rounds.forEach(({ a, b }) => {
+    const p = payoff(game, a, b);
+    classTotal += p[0];
+    if (a === STRAIGHT && b === STRAIGHT) crashes++;
+    const w = roundWinner(p);
+    if (w === 'class') classWins++;
+    if (w === 'ai') aiWins++;
+  });
+  const need = Math.ceil(BEST_OF / 2);
+  const over = classWins >= need || aiWins >= need || rounds.length >= BEST_OF;
+  return { classWins, aiWins, classTotal, crashes, over, played: rounds.length };
+}
+
+/** Nash benchmark for the class over n rounds: against an MSNE opponent every move earns the row MSNE value. */
+export function nashSeriesValue(sol: ChickenSolution, rounds: number) {
+  return sol.mixed.rowValue * rounds;
 }

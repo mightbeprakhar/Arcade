@@ -1,36 +1,14 @@
 import { Link } from 'react-router-dom';
-import { SectionTitle, Takeaways, VersusCard, rupeeK } from '../../components/ui';
-import { NextStageButton } from '../../components/GameShell';
-import { PD, ROUNDS, finiteHorizonSPNE, grimDeltaThreshold, strategyById } from '../../engine/advertising';
-import { cumulative } from './Tally';
+import { RecordedVersus } from '../../components/RecordedVersus';
+import { SectionTitle, Takeaways } from '../../components/ui';
+import { grimDeltaThreshold } from '../../engine/advertising';
 import type { AdState } from './AdvertisingGame';
 
-export function AdDebrief({ st, accent }: { st: AdState; accent: string }) {
-  const done = st.classMoves.length >= ROUNDS;
-  const cum = cumulative(st.classMoves, st.aiMoves);
-  const total = cum.at(-1)?.a ?? 0;
-  const ads = st.classMoves.filter((m) => m === 'A').length;
-  const spne = finiteHorizonSPNE();
-  const nashTotal = spne.length * PD.P;
-  const opp = strategyById(st.opponent);
-
-
+export function AdDebrief({ accent }: { st: AdState; accent: string }) {
   return (
     <div>
       <SectionTitle kicker="Debrief" title="Humans vs Nash: the coffee wars" color={accent} />
-      {done ? (
-        <VersusCard
-          classChoice={`Advertised ${ads} of ${ROUNDS} weeks vs ${opp.name}`}
-          classPayoff={rupeeK(total)}
-          nashPrediction="Ad every week (backward induction)"
-          nashPayoff={rupeeK(nashTotal)}
-          unit="over 20 weeks"
-        />
-      ) : (
-        <div className="card text-lg">
-          The class has played {st.classMoves.length} of {ROUNDS} weeks. <NextStageButton label="Finish the match" to="play" />
-        </div>
-      )}
+      <RecordedVersus game="advertising" />
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Takeaways
           color={accent}

@@ -8,9 +8,23 @@ The arcade is built for a live, camera-free class session. One presenter drives 
 |---|---|---|
 | **Story** | A pixel comic strip, one panel per keypress | Read the yellow narration boxes aloud (or switch on Voiceover in Chicken) |
 | **Play** | The game screen and a vote counter | Count hands, tap **+ / −**, press the gold button to lock in |
-| **Solve** | The diagram (matrix or tree) builds step by step, then the maths | Press **→** to reveal each step and explain it in your own words |
+| **Solve** | First a **Predict** vote: the class guesses the equilibrium (multiple choice), the reveal says right or wrong (+100 points if right). Then the diagram builds step by step, then the maths | Count hands, press **→** to lock, **→** to reveal, **→** to start the solution; explain each step in your own words |
 | **Simulate** | Sliders and charts that run thousands of games | Move one slider at a time and say what changed and why |
 | **Debrief** | Class vs Nash, takeaways, discussion questions | Ask one discussion question and take two answers |
+
+## What the class plays
+
+| Game | Play mode |
+|---|---|
+| Ultimatum | 5 rounds against freshly drawn strangers, with a running bank. Round A: the class proposes; then **Next: Round B**, where it sets a minimum |
+| Chicken | Best of 5 against an AI driver that mixes at the equilibrium. One **commit** power-up locks the class into Straight before the AI moves (the AI then swerves). A left-side-vs-right-side mode is still available |
+| Advertising | 20 weeks against a chosen or mystery rival. With a mystery rival, the class guesses its strategy before the reveal (+100 points if right) |
+| Waiting Game | Vote wait or concede every minute until someone cracks |
+| Startup | 5 markets in a row, as the startup (enter or stay out) or as the incumbent (fight or accommodate after entry) |
+
+## Points and the beat-Nash badge
+
+Each game's payoff is converted to points (formulas in `src/engine/score.ts`), plus bonuses for a correct prediction or mystery guess. A game earns **★ Beat Nash** when the class's payoff beats what the equilibrium player would have earned, in series games on the same strangers or markets. Points and badges show on the hub and on Humans vs Nash, and they update after every round.
 
 The last screen of the talk is **Humans vs Nash** (`/results`): every game the class played, the class's payoff, the equilibrium payoff and the gap.
 

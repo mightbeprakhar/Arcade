@@ -3,23 +3,24 @@ import { motion } from 'framer-motion';
 import { BridgeScene, type ScenePhase } from './BridgeScene';
 import { VotePanel } from '../../components/VotePanel';
 import { PayoffMatrix } from '../../components/PayoffMatrix';
-import { Toggle } from '../../components/ui';
 import { NextStageButton } from '../../components/GameShell';
 import { ActionWord, Bubble, Narration, Panel } from '../../components/comic';
 import { Sprite } from '../../components/pixel/Sprite';
 import { C, face, type Mood } from '../../components/pixel/sprites';
 import { payoff, type ChickenSolution, type Move } from '../../engine/chicken';
+import { AiSeries } from './AiSeries';
+import { Toggle } from '../../components/ui';
 import type { ChickenState } from './ChickenGame';
 
-const LINES: Record<string, [string, string]> = {
+export const LINES: Record<string, [string, string]> = {
   '0-0': ['Phew. Nobody’s a hero tonight.', 'Same. Call it a draw.'],
   '0-1': ['…I blinked.', 'Never doubted it.'],
   '1-0': ['Never doubted it.', '…I blinked.'],
   '1-1': ['Why didn’t you swerve?!', 'Why didn’t YOU?!'],
 };
-const MOODS: Record<string, [Mood, Mood]> = { '0-0': ['happy', 'happy'], '0-1': ['sad', 'smug'], '1-0': ['smug', 'sad'], '1-1': ['shocked', 'shocked'] };
+export const MOODS: Record<string, [Mood, Mood]> = { '0-0': ['happy', 'happy'], '0-1': ['sad', 'smug'], '1-0': ['smug', 'sad'], '1-1': ['shocked', 'shocked'] };
 
-export function ChickenPlay({ st, sol }: { st: ChickenState; sol: ChickenSolution; accent?: string }) {
+function RoomPlay({ st, sol }: { st: ChickenState; sol: ChickenSolution }) {
   const g = sol.game;
   const [voteA, setVoteA] = useState<Move | null>(null);
   const [voteB, setVoteB] = useState<Move | null>(null);
@@ -64,20 +65,6 @@ export function ChickenPlay({ st, sol }: { st: ChickenState; sol: ChickenSolutio
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <span className="chip text-gold">PLAY · SIMULTANEOUS MOVE</span>
-        <div className="w-full max-w-md">
-          <Toggle
-            checked={st.asymmetric}
-            onChange={(v) => {
-              if (!locked) st.setAsymmetric(v);
-            }}
-            label="Truck vs car"
-            sub={locked ? 'Play again to change this' : 'Blue drives a truck: a crash barely scratches it'}
-          />
-        </div>
-      </div>
-
       <motion.div
         className="relative border-4 border-black shadow-hard"
         animate={crash ? { x: [0, -10, 10, -8, 8, -4, 0] } : { x: 0 }}
@@ -157,6 +144,40 @@ export function ChickenPlay({ st, sol }: { st: ChickenState; sol: ChickenSolutio
           </Panel>
         </div>
       )}
+    </div>
+  );
+}
+
+/** Play: class vs an AI driver (best of 5), or the two halves of the room against each other. */
+export function ChickenPlay({ st, sol }: { st: ChickenState; sol: ChickenSolution; accent?: string }) {
+  const busy = st.mode === 'ai' ? st.rounds.length > 0 : st.outcome !== null;
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Play mode">
+          {(
+            [
+              ['ai', 'CLASS VS AI · BEST OF 5'],
+              ['room', 'LEFT SIDE VS RIGHT SIDE'],
+            ] as const
+          ).map(([m, l]) => (
+            <button key={m} className={`btn-ghost ${st.mode === m ? '!border-gold !text-gold' : ''}`} aria-pressed={st.mode === m} onClick={() => st.setMode(m)}>
+              {l}
+            </button>
+          ))}
+        </div>
+        <div className="w-full max-w-md">
+          <Toggle
+            checked={st.asymmetric}
+            onChange={(v) => {
+              if (!busy) st.setAsymmetric(v);
+            }}
+            label="Truck vs car"
+            sub={busy ? 'Start a new game to change this' : 'The class drives a truck: a crash barely scratches it'}
+          />
+        </div>
+      </div>
+      {st.mode === 'ai' ? <AiSeries key={String(st.asymmetric)} st={st} sol={sol} /> : <RoomPlay st={st} sol={sol} />}
     </div>
   );
 }

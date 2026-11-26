@@ -69,6 +69,17 @@ export const BuildProvider = BuildContext.Provider;
 
 let buildSeq = 0;
 
+/** Register a custom → / ← handler (returns true when it consumed the key). Lower order runs first. */
+export function useBuildHandler(handler: BuildHandler, order = 10) {
+  const reg = useContext(BuildContext);
+  const ref = useRef(handler);
+  ref.current = handler;
+  useEffect(() => {
+    if (!reg) return;
+    return reg.register(`h${++buildSeq}`, { next: () => ref.current.next(), prev: () => ref.current.prev() }, order);
+  }, [reg, order]);
+}
+
 /**
  * A reveal-in-steps counter wired to the presenter keys.
  * Starts at `initial`, → increments until `total`, ← decrements back to `initial`.

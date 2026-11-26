@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { recordAttrition } from '../../state/record';
 import { GameShell, type Stage } from '../../components/GameShell';
+import { PredictGate } from '../../components/PredictGate';
 import { metaById } from '../meta';
 import { AttStory } from './Story';
 import { AttPlay } from './Play';
@@ -32,7 +33,15 @@ export default function AttritionGame() {
   const stages: Stage[] = [
     { id: 'story', label: 'Story', render: () => <AttStory /> },
     { id: 'play', label: 'Play', render: () => <AttPlay st={st} /> },
-    { id: 'solve', label: 'Solve', render: () => <AttSolve st={st} /> },
+    {
+      id: 'solve',
+      label: 'Solve',
+      render: () => (
+        <PredictGate game="attrition">
+          <AttSolve st={st} />
+        </PredictGate>
+      ),
+    },
     { id: 'simulate', label: 'Simulate', render: () => <AttSimulate /> },
     { id: 'debrief', label: 'Debrief', render: () => <AttDebrief st={st} /> },
   ];

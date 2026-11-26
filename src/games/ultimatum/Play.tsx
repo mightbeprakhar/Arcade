@@ -6,7 +6,8 @@ import { ActionWord, Bubble, Narration, Panel } from '../../components/comic';
 import { Sprite } from '../../components/pixel/Sprite';
 import { C, face } from '../../components/pixel/sprites';
 import { T } from '../../components/motion';
-import { ALPHA_TYPES, OFFERS, PIE, aiResponderAccepts, drawAlpha, drawHumanOffer, fehrSchmidtThreshold, outcome } from '../../engine/ultimatum';
+import { ALPHA_TYPES, OFFERS, PIE, ULT_ROUNDS, aiResponderAccepts, drawAlpha, drawHumanOffer, fehrSchmidtThreshold, outcome } from '../../engine/ultimatum';
+import { ultimatumBank, type UltRound } from '../../state/record';
 import type { UltMode, UltState } from './UltimatumGame';
 
 const r = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
@@ -14,13 +15,15 @@ const k = (n: number) => `${n / 1000}k`;
 
 export function UltPlay({ st }: { st: UltState }) {
   const [vote, setVote] = useState<number | null>(null);
-  const [phase, setPhase] = useState<'vote' | 'thinking' | 'done'>(st.round ? 'done' : 'vote');
-  const [pending, setPending] = useState<UltState['round']>(null);
+  const [phase, setPhase] = useState<'vote' | 'thinking' | 'done'>(st.rounds.length ? 'done' : 'vote');
+  const [pending, setPending] = useState<UltRound | null>(null);
+  const seriesOver = st.rounds.length >= ULT_ROUNDS;
+  const bank = ultimatumBank(st.rounds);
 
   useEffect(() => {
     if (phase !== 'thinking' || !pending) return;
     const t = setTimeout(() => {
-      st.setRound(pending);
+      st.addRound(pending);
       setPhase('done');
     }, 1800);
     return () => clearTimeout(t);
@@ -40,15 +43,20 @@ export function UltPlay({ st }: { st: UltState }) {
     setPhase('thinking');
   };
 
-  const again = () => {
-    st.setRound(null);
+  /** Next stranger in the same series. */
+  const nextStranger = () => {
     setPending(null);
     setVote(null);
     setPhase('vote');
   };
+  /** Start a fresh 5-round series (optionally switching role). */
+  const again = () => {
+    st.resetRounds();
+    nextStranger();
+  };
 
   const switchMode = (m: UltMode) => {
-    if (phase !== 'vote') return;
+    if (phase !== 'vote' || st.rounds.length) return;
     st.setMode(m);
     setVote(null);
   };
@@ -65,14 +73,34 @@ export function UltPlay({ st }: { st: UltState }) {
             ] as const
           )
             // Once a round is under way only its own tab shows; the next round is offered as a button at the end.
-            .filter(([m]) => phase === 'vote' || st.mode === m)
+            .filter(([m]) => (phase === 'vote' && !st.rounds.length) || st.mode === m)
             .map(([m, l]) => (
               <button key={m} onClick={() => switchMode(m)} aria-pressed={st.mode === m} className={`btn-ghost ${st.mode === m ? '!border-gold !text-gold' : ''}`}>
                 {l}
               </button>
             ))}
         </div>
+        <span className="chip ml-auto text-gold">
+          STRANGER {Math.min(st.rounds.length + (phase === 'done' ? 0 : 1), ULT_ROUNDS)}/{ULT_ROUNDS}
+        </span>
       </div>
+
+      <Panel className="grid grid-cols-3 items-center gap-4 p-4 text-center">
+        <div>
+          <div className="font-pixel text-xs text-blue">CLASS BANK</div>
+          <div className="font-mono text-5xl leading-none text-blue">{r(bank.bank)}</div>
+        </div>
+        <div>
+          <div className="font-pixel text-xs text-ink-3">DEALS</div>
+          <div className="font-mono text-5xl leading-none">
+            {bank.accepted}/{st.rounds.length}
+          </div>
+        </div>
+        <div>
+          <div className="font-pixel text-xs text-gold">NASH ON SAME STRANGERS</div>
+          <div className="font-mono text-5xl leading-none text-gold">{r(bank.nash)}</div>
+        </div>
+      </Panel>
 
       {phase === 'vote' && (
         <>
@@ -82,7 +110,7 @@ export function UltPlay({ st }: { st: UltState }) {
               : `The class is the Responder. Before you see the offer, set the smallest amount you'll accept. The Proposer is a stranger who decides on their own.`}
           </Narration>
           <HistogramVote
-            key={st.mode}
+            key={`${st.mode}-${st.rounds.length}`}
             title={st.mode === 'proposer' ? 'Show of hands: what do we offer?' : 'Show of hands: our minimum to accept'}
             options={OFFERS}
             format={k}
@@ -98,9 +126,11 @@ export function UltPlay({ st }: { st: UltState }) {
       )}
 
       {phase === 'thinking' && pending && <Thinking round={pending} />}
-      {phase === 'done' && st.round && (
+      {phase === 'done' && st.rounds.length > 0 && (
         <Ending
           st={st}
+          over={seriesOver}
+          onNext={nextStranger}
           onAgain={again}
           onRoundB={() => {
             again();
@@ -112,7 +142,7 @@ export function UltPlay({ st }: { st: UltState }) {
   );
 }
 
-function Thinking({ round }: { round: NonNullable<UltState['round']> }) {
+function Thinking({ round }: { round: UltRound }) {
   const R = face('grim', C.K, C.skin2, C.redD, 'long');
   return (
     <Panel className="grid min-h-[22rem] place-items-center bg-[#241f52] p-6">
@@ -127,8 +157,9 @@ function Thinking({ round }: { round: NonNullable<UltState['round']> }) {
 }
 
 /** The two ending screens from the spec: "Accepted" or "Zero payout". */
-function Ending({ st, onAgain, onRoundB }: { st: UltState; onAgain: () => void; onRoundB: () => void }) {
-  const rd = st.round!;
+function Ending({ st, over, onNext, onAgain, onRoundB }: { st: UltState; over: boolean; onNext: () => void; onAgain: () => void; onRoundB: () => void }) {
+  const rd = st.rounds[st.rounds.length - 1];
+  const bank = ultimatumBank(st.rounds);
   const [pp, rr] = outcome(rd.offer, rd.accepted);
   const P = face(rd.accepted ? 'happy' : 'shocked', C.brown, C.skin, C.blueD, 'short');
   const R = face(rd.accepted ? 'smug' : 'grim', C.K, C.skin2, C.redD, 'long');
@@ -166,11 +197,27 @@ function Ending({ st, onAgain, onRoundB }: { st: UltState; onAgain: () => void; 
       {rd.mode === 'responder' && !rd.accepted && rd.offer > 0 && (
         <Narration>A purely money-minded responder would have pocketed {r(rd.offer)}. Your pride cost exactly that. Was it worth it?</Narration>
       )}
+      {over && (
+        <Panel tone={bank.bank > bank.nash ? 'gold' : 'night'} className="grid place-items-center gap-3 p-6 text-center">
+          <ActionWord text={bank.bank > bank.nash ? 'BEAT NASH!' : 'NASH WINS'} size={30} />
+          <p className="text-2xl font-bold">
+            After {ULT_ROUNDS} strangers the class banked {r(bank.bank)}. The equilibrium {rd.mode === 'proposer' ? 'Proposer' : 'Responder'} would have banked {r(bank.nash)} against the same people.
+          </p>
+        </Panel>
+      )}
       <div className="flex flex-wrap gap-4">
-        <button className="btn-ghost" onClick={onAgain}>
-          ↺ PLAY AGAIN
-        </button>
-        {rd.mode === 'proposer' ? (
+        {!over ? (
+          <button className="btn-primary" onClick={onNext}>
+            NEXT STRANGER ▶
+          </button>
+        ) : (
+          <button className="btn-ghost" onClick={onAgain}>
+            ↺ NEW {ULT_ROUNDS} ROUNDS
+          </button>
+        )}
+        {!over ? (
+          <NextStageButton label="SKIP TO SOLVE" quiet />
+        ) : rd.mode === 'proposer' ? (
           <>
             <button className="btn-primary" onClick={onRoundB}>
               NEXT: ROUND B ▶

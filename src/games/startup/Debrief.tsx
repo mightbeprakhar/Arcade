@@ -1,29 +1,14 @@
 import { Link } from 'react-router-dom';
-import { Notes, SectionTitle, Takeaways, VersusCard } from '../../components/ui';
-import { NextStageButton } from '../../components/GameShell';
-import { Narration } from '../../components/comic';
-import { STARTUP, leafPayoff, solveTree } from '../../engine/startup';
+import { RecordedVersus } from '../../components/RecordedVersus';
+import { Notes, SectionTitle, Takeaways } from '../../components/ui';
+import { solveTree } from '../../engine/startup';
 import type { StartupState } from './StartupGame';
 
-export function StartupDebrief({ st }: { st: StartupState }) {
-  const rd = st.round;
-  const pay = rd ? (rd.entered ? leafPayoff(rd.demand, rd.action, st.credible)[0] : STARTUP.stayOut[0]) : 0;
-  const choice = rd ? (rd.entered ? `Entered; demand ${rd.demand}; incumbent chose ${rd.action}` : 'Stayed out') : '';
-  const nashPay = st.sol.decision === 'Enter' ? st.sol.euEnter : STARTUP.stayOut[0];
-  const nashLabel = `${st.sol.decision} (p = ${st.p.toFixed(2)}${st.credible ? ', credible threat' : ''})`;
-
-
+export function StartupDebrief({}: { st: StartupState }) {
   return (
     <div>
       <SectionTitle kicker="DEBRIEF" title="Humans vs Nash: the market" />
-      {rd ? (
-        <VersusCard classChoice={choice} classPayoff={String(pay)} nashPrediction={nashLabel} nashPayoff={`${nashPay.toFixed(2)} expected`} unit="startup profit" />
-      ) : (
-        <div className="flex flex-wrap items-center gap-4">
-          <Narration>The class hasn’t played yet.</Narration>
-          <NextStageButton label="GO TO PLAY" to="play" />
-        </div>
-      )}
+      <RecordedVersus game="startup" />
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Takeaways
           items={[

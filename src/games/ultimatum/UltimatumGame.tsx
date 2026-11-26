@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { recordUltimatum } from '../../state/record';
+import { recordUltimatum, type UltRound } from '../../state/record';
+import { PredictGate } from '../../components/PredictGate';
 import { GameShell, type Stage } from '../../components/GameShell';
 import { metaById } from '../meta';
 import { UltStory } from './Story';
@@ -9,30 +10,38 @@ import { UltSimulate } from './Simulate';
 import { UltDebrief } from './Debrief';
 
 export type UltMode = 'proposer' | 'responder';
-/** What happened in the class's round. */
-export type UltRound =
-  | { mode: 'proposer'; offer: number; alphaIdx: number; accepted: boolean }
-  | { mode: 'responder'; min: number; offer: number; accepted: boolean };
+export type { UltRound };
 
+/** A series is 5 rounds against freshly drawn strangers; the bank is the class's running total. */
 export type UltState = {
   mode: UltMode;
   setMode: (m: UltMode) => void;
-  round: UltRound | null;
-  setRound: (r: UltRound | null) => void;
+  rounds: UltRound[];
+  addRound: (r: UltRound) => void;
+  resetRounds: () => void;
 };
 
 export default function UltimatumGame() {
   const meta = metaById('ultimatum');
   const [mode, setMode] = useState<UltMode>('proposer');
-  const [round, setRound] = useState<UltRound | null>(null);
+  const [rounds, setRounds] = useState<UltRound[]>([]);
+  // Record after every round so Humans vs Nash always shows the bank so far.
   useEffect(() => {
-    if (round) recordUltimatum(round);
-  }, [round]);
-  const st: UltState = { mode, setMode, round, setRound };
+    recordUltimatum(rounds);
+  }, [rounds]);
+  const st: UltState = { mode, setMode, rounds, addRound: (r) => setRounds((x) => [...x, r]), resetRounds: () => setRounds([]) };
   const stages: Stage[] = [
     { id: 'story', label: 'Story', render: () => <UltStory /> },
     { id: 'play', label: 'Play', render: () => <UltPlay st={st} /> },
-    { id: 'solve', label: 'Solve', render: () => <UltSolve /> },
+    {
+      id: 'solve',
+      label: 'Solve',
+      render: () => (
+        <PredictGate game="ultimatum">
+          <UltSolve />
+        </PredictGate>
+      ),
+    },
     { id: 'simulate', label: 'Simulate', render: () => <UltSimulate /> },
     { id: 'debrief', label: 'Debrief', render: () => <UltDebrief st={st} /> },
   ];

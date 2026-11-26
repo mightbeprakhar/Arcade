@@ -1,15 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
-import { recordStartup } from '../../state/record';
+import { recordStartup, type Market, type StartupRole } from '../../state/record';
+import { PredictGate } from '../../components/PredictGate';
 import { GameShell, type Stage } from '../../components/GameShell';
 import { metaById } from '../meta';
-import { STARTUP, solveTree, type Demand, type IncAction } from '../../engine/startup';
+import { STARTUP, solveTree } from '../../engine/startup';
 import { StartupStory } from './Story';
 import { StartupPlay } from './Play';
 import { StartupSolve } from './Solve';
 import { StartupSimulate } from './Simulate';
 import { StartupDebrief } from './Debrief';
 
-export type StartupRound = { entered: false } | { entered: true; demand: Demand; action: IncAction };
+export type { Market, StartupRole };
 
 export type StartupState = {
   p: number;
@@ -18,8 +19,12 @@ export type StartupState = {
   setCredible: (v: boolean) => void;
   r: number;
   setR: (v: number) => void;
-  round: StartupRound | null;
-  setRound: (v: StartupRound | null) => void;
+  /** Which side the class plays in the 5-market series. */
+  role: StartupRole;
+  setRole: (r: StartupRole) => void;
+  markets: Market[];
+  addMarket: (m: Market) => void;
+  resetMarkets: () => void;
   sol: ReturnType<typeof solveTree>;
 };
 
@@ -28,17 +33,27 @@ export default function StartupGame() {
   const [p, setP] = useState(STARTUP.pHigh);
   const [credible, setCredible] = useState(false);
   const [r, setR] = useState(0);
-  const [round, setRound] = useState<StartupRound | null>(null);
+  const [role, setRole] = useState<StartupRole>('founder');
+  const [markets, setMarkets] = useState<Market[]>([]);
   const sol = useMemo(() => solveTree({ p, credible, r }), [p, credible, r]);
+  // Record after every market so Humans vs Nash shows the running score.
   useEffect(() => {
-    if (round) recordStartup(round, sol, p, credible);
+    recordStartup(role, markets, p, credible);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [round]);
-  const st: StartupState = { p, setP, credible, setCredible, r, setR, round, setRound, sol };
+  }, [markets]);
+  const st: StartupState = { p, setP, credible, setCredible, r, setR, role, setRole, markets, addMarket: (m) => setMarkets((x) => [...x, m]), resetMarkets: () => setMarkets([]), sol };
   const stages: Stage[] = [
     { id: 'story', label: 'Story', render: () => <StartupStory /> },
     { id: 'play', label: 'Play', render: () => <StartupPlay st={st} /> },
-    { id: 'solve', label: 'Solve', render: () => <StartupSolve st={st} /> },
+    {
+      id: 'solve',
+      label: 'Solve',
+      render: () => (
+        <PredictGate game="startup">
+          <StartupSolve st={st} />
+        </PredictGate>
+      ),
+    },
     { id: 'simulate', label: 'Simulate', render: () => <StartupSimulate st={st} /> },
     { id: 'debrief', label: 'Debrief', render: () => <StartupDebrief st={st} /> },
   ];

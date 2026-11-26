@@ -1,36 +1,16 @@
 import { Link } from 'react-router-dom';
-import { SectionTitle, Takeaways, VersusCard } from '../../components/ui';
-import { NextStageButton } from '../../components/GameShell';
-import { payoff, type ChickenSolution } from '../../engine/chicken';
+import { RecordedVersus } from '../../components/RecordedVersus';
+import { SectionTitle, Takeaways } from '../../components/ui';
+import type { ChickenSolution } from '../../engine/chicken';
 import type { ChickenState } from './ChickenGame';
 
 const pct = (x: number) => `${+(x * 100).toFixed(1)}%`;
 
 export function ChickenDebrief({ st, sol, accent }: { st: ChickenState; sol: ChickenSolution; accent: string }) {
-  const g = sol.game;
-  const o = st.outcome;
-  const res = o ? payoff(g, o.a, o.b) : null;
-  const classTotal = res ? res[0] + res[1] : null;
-  const nashTotal = sol.mixed.rowValue + sol.mixed.colValue;
-  const nashLabel = `Mix: ${g.rowPlayer} straight ${pct(sol.mixed.rowP1)}, ${g.colPlayer} ${pct(sol.mixed.colP1)}`;
-
-
   return (
     <div>
       <SectionTitle kicker="Debrief" title="Humans vs Nash: the bridge" color={accent} />
-      {o && res ? (
-        <VersusCard
-          classChoice={`${g.rowLabels[o.a]} / ${g.colLabels[o.b]}${o.a === 1 && o.b === 1 ? ' (crash)' : ''}`}
-          classPayoff={`${res[0]} + ${res[1]} = ${classTotal}`}
-          nashPrediction={nashLabel}
-          nashPayoff={`${nashTotal.toFixed(2)} expected`}
-          unit="total pts"
-        />
-      ) : (
-        <div className="card text-lg">
-          The class hasn’t played yet. <NextStageButton label="Go to Play" to="play" />
-        </div>
-      )}
+      <RecordedVersus game="chicken" />
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Takeaways
           color={accent}

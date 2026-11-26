@@ -109,3 +109,18 @@ export function responderExpected(minAccept: number) {
 export function responderExpectedCurve() {
   return OFFERS.filter((m) => m <= 6000).map((m) => ({ min: m, expected: responderExpected(m) }));
 }
+
+/* ---------- 5-round series against freshly drawn strangers ---------- */
+
+export const ULT_ROUNDS = 5;
+
+/** What the SPNE Proposer (offer the smallest positive step) would have earned against this stranger. */
+export function nashProposerPayoff(alpha: number) {
+  const offer = spne()[0].offer;
+  return outcome(offer, aiResponderAccepts(offer, alpha))[0];
+}
+
+/** What a money-only Responder (accept any x > 0) would have earned from this offer. */
+export function nashResponderPayoff(offer: number) {
+  return rationalAccepts(offer) ? offer : 0;
+}

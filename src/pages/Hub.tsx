@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { GAMES } from '../games/meta';
-import { useResults, type GameId } from '../state/results';
+import { beatNashFor, pointsFor, usePredictions, useResults, type GameId } from '../state/results';
 import { usePresenter, toggleFullscreen } from '../state/presenter';
 import { Sprite } from '../components/pixel/Sprite';
 import { C, chickenThumb, face, icons } from '../components/pixel/sprites';
@@ -29,6 +29,8 @@ function Stars() {
 
 export default function Hub() {
   const results = useResults();
+  const preds = usePredictions();
+  const totalPts = GAMES.reduce((s, g) => s + (pointsFor(g.id, results, preds) ?? 0), 0);
   const { togglePresenter } = usePresenter();
   const played = GAMES.filter((g) => results[g.id]).length;
 
@@ -93,6 +95,8 @@ export default function Hub() {
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {GAMES.map((g) => {
               const done = !!results[g.id];
+              const pts = pointsFor(g.id, results, preds);
+              const beat = beatNashFor(results[g.id]);
               const t = THUMBS[g.id];
               return (
                 <Link
@@ -111,7 +115,11 @@ export default function Hub() {
                     <div className="mt-3 font-display text-3xl font-bold">{g.title}</div>
                     <div className="mt-1 text-lg text-teal">{g.concept}</div>
                     <p className="mt-3 flex-1 text-xl text-ink-2">{g.hook}</p>
-                    <span className="mt-4 font-pixel text-xs text-ink group-hover:text-gold">PLAY ▶</span>
+                    <div className="mt-4 flex flex-wrap items-center gap-2">
+                      <span className="font-pixel text-xs text-ink group-hover:text-gold">PLAY ▶</span>
+                      {pts !== null && <span className="chip ml-auto text-gold">{pts.toLocaleString('en-IN')} PTS</span>}
+                      {beat && <span className="chip bg-gold text-black">★ BEAT NASH</span>}
+                    </div>
                   </div>
                 </Link>
               );
@@ -130,7 +138,7 @@ export default function Hub() {
                 <div className="mt-3 font-display text-3xl font-bold">Humans vs Nash</div>
                 <p className="mt-3 flex-1 text-xl">What the class did against what theory predicted, with the payoff gap.</p>
                 <span className="mt-4 font-pixel text-xs">
-                  {played}/{GAMES.length} PLAYED ▶
+                  {played}/{GAMES.length} PLAYED · {totalPts.toLocaleString('en-IN')} PTS ▶
                 </span>
               </div>
             </Link>

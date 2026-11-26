@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { GAMES } from '../games/meta';
-import { clearAllResults, useResults } from '../state/results';
+import { beatNashFor, clearAllResults, pointsFor, usePredictions, useResults } from '../state/results';
 import { ActionWord, Bubble, Narration, Panel } from '../components/comic';
 import { Sprite } from '../components/pixel/Sprite';
 import { C, face } from '../components/pixel/sprites';
@@ -39,9 +39,11 @@ function PairBars({ a, b }: { a: number; b: number }) {
 
 export default function Results() {
   const results = useResults();
+  const preds = usePredictions();
+  const totalPts = GAMES.reduce((s, g) => s + (pointsFor(g.id, results, preds) ?? 0), 0);
   const { togglePresenter } = usePresenter();
   const played = GAMES.filter((g) => results[g.id]);
-  const beat = played.filter((g) => results[g.id]!.classPayoff > results[g.id]!.nashPayoff).length;
+  const beat = played.filter((g) => beatNashFor(results[g.id])).length;
   const nash = face(beat > played.length / 2 ? 'shocked' : 'smug', '#a39bc9', C.skin, '#2b2659', 'neat');
 
   useEffect(() => {
@@ -86,7 +88,7 @@ export default function Results() {
                     : 'Some wins for humanity. Some for me.'}
             </Bubble>
           </div>
-          <div className="mt-6 grid grid-cols-2 gap-4 text-center">
+          <div className="mt-6 grid grid-cols-3 gap-4 text-center">
             <div className="border-4 border-black bg-deep p-3">
               <div className="font-pixel text-xs text-ink-3">PLAYED</div>
               <div className="font-mono text-6xl leading-none">
@@ -94,8 +96,12 @@ export default function Results() {
               </div>
             </div>
             <div className="border-4 border-black bg-deep p-3">
-              <div className="font-pixel text-xs text-ink-3">CLASS BEAT NASH</div>
+              <div className="font-pixel text-xs text-ink-3">BEAT NASH</div>
               <div className="font-mono text-6xl leading-none text-blue">{beat}</div>
+            </div>
+            <div className="border-4 border-black bg-deep p-3">
+              <div className="font-pixel text-xs text-ink-3">POINTS</div>
+              <div className="font-mono text-6xl leading-none text-gold">{totalPts.toLocaleString('en-IN')}</div>
             </div>
           </div>
         </Panel>
@@ -140,7 +146,10 @@ export default function Results() {
                 </div>
                 <PairBars a={r.classPayoff} b={r.nashPayoff} />
                 <div className="text-center">
-                  <div className="font-pixel text-xs text-ink-3">GAP</div>
+                  {beatNashFor(r) && <div className="chip mb-2 bg-gold text-black">★ BEAT NASH</div>}
+                  <div className="font-mono text-3xl leading-none text-gold">{(pointsFor(g.id, results, preds) ?? 0).toLocaleString('en-IN')} pts</div>
+                  {preds[g.id] !== undefined && <div className="mt-1 text-sm text-ink-3">prediction {preds[g.id] ? 'right' : 'missed'}</div>}
+                  <div className="mt-3 font-pixel text-xs text-ink-3">GAP</div>
                   <div className={`font-mono text-6xl leading-none ${won ? 'text-teal' : gap < 0 ? 'text-red' : 'text-ink'}`}>
                     {gap > 0 ? '+' : ''}
                     {fmt(gap)}

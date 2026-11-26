@@ -1,30 +1,16 @@
 import { Link } from 'react-router-dom';
-import { Notes, SectionTitle, Takeaways, VersusCard } from '../../components/ui';
-import { NextStageButton } from '../../components/GameShell';
-import { Narration } from '../../components/comic';
-import { ATTRITION, attritionPayoffs, solveSymmetric } from '../../engine/attrition';
+import { RecordedVersus } from '../../components/RecordedVersus';
+import { Notes, SectionTitle, Takeaways } from '../../components/ui';
+import { ATTRITION, solveSymmetric } from '../../engine/attrition';
 import type { AttState } from './AttritionGame';
 
-export function AttDebrief({ st }: { st: AttState }) {
+export function AttDebrief({}: { st: AttState }) {
   const { V, c } = ATTRITION;
   const s = solveSymmetric(V, c);
-  const rd = st.round;
-  const pay = rd ? attritionPayoffs(rd.minute, rd.classConceded, V, c, rd.escalating ? rd.g : 0).classPayoff : 0;
-  const choice = rd ? `${rd.classConceded ? 'Conceded' : 'Outlasted the roommate'} after ${rd.minute} min` : '';
-  const nashLabel = `Quit at rate λ = ${s.lambda}/min (mean ${s.meanPerPlayer} min)`;
-
-
   return (
     <div>
       <SectionTitle kicker="DEBRIEF" title="Humans vs Nash: the bin" />
-      {rd ? (
-        <VersusCard classChoice={choice} classPayoff={`₹${Math.round(pay)}`} nashPrediction={nashLabel} nashPayoff={`₹${s.expectedPayoff} expected`} unit="to roommate A" />
-      ) : (
-        <div className="flex flex-wrap items-center gap-4">
-          <Narration>The class hasn’t played yet.</Narration>
-          <NextStageButton label="GO TO PLAY" to="play" />
-        </div>
-      )}
+      <RecordedVersus game="attrition" />
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Takeaways
           items={[

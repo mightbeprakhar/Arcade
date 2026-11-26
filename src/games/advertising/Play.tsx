@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { VotePanel } from '../../components/VotePanel';
+import { GUESS_BONUS } from '../../engine/score';
 import { PEN, RED, SectionTitle, Stat, rupeeK } from '../../components/ui';
 import { NextStageButton } from '../../components/GameShell';
 import { ROUNDS, STRATEGIES, aiMove, payoffs, strategyById, type Move } from '../../engine/advertising';
@@ -12,12 +12,14 @@ import type { AdState } from './AdvertisingGame';
 const AUTOPLAY = ['tft', 'alwaysAd', 'alwaysSave'];
 
 export function AdPlay({ st, accent }: { st: AdState; accent: string }) {
-  const [mystery, setMystery] = useState(false);
+  const { mystery, setMystery } = st;
+  // Until the class has guessed, the mystery rival stays anonymous, even after week 20.
+  const hidden = mystery && st.guess === null;
   const round = st.classMoves.length;
   const started = round > 0;
   const done = round >= ROUNDS;
   const opp = strategyById(st.opponent);
-  const oppName = mystery && !done ? 'Mystery rival' : `Bean There (${opp.name})`;
+  const oppName = hidden ? 'Mystery rival' : `Bean There (${opp.name})`;
   const cum = cumulative(st.classMoves, st.aiMoves);
   const last = cum.at(-1);
 
@@ -57,7 +59,7 @@ export function AdPlay({ st, accent }: { st: AdState; accent: string }) {
             {last && st.classMoves[round - 1] === 'S' && st.aiMoves[round - 1] === 'S' && <ActionWord key={round} text="TRUCE" size={22} color="#fff4dc" />}
           </div>
           <div className="text-center">
-            <PixelShop name={mystery && !done ? '???' : 'Bean There'} color={C.red} ad={round > 0 && st.aiMoves[round - 1] === 'A'} px={3} />
+            <PixelShop name={hidden ? '???' : 'Bean There'} color={C.red} ad={round > 0 && st.aiMoves[round - 1] === 'A'} px={3} />
             {last && <div className="mt-2 font-mono text-3xl text-red">+₹{last.pb}k</div>}
           </div>
         </div>
@@ -108,11 +110,26 @@ export function AdPlay({ st, accent }: { st: AdState; accent: string }) {
               onDecide={(id) => playRound(id as Move)}
               lockLabel="Lock in & reveal rival"
             />
+          ) : hidden ? (
+            <VotePanel
+              title="All 20 weeks played: which playbook was the mystery rival using?"
+              options={STRATEGIES.map((s) => ({ id: s.id, label: s.name }))}
+              onDecide={(id) => st.setGuess(id)}
+              lockLabel="Lock in our guess & reveal"
+            />
           ) : (
-            <div className="card">
+            <div className="card space-y-3">
               <div className="label">All {ROUNDS} weeks played</div>
-              <div className="mt-1 text-2xl">The rival was {opp.name}.</div>
-              <p className="mt-1 text-lg text-ink-2">{opp.description}</p>
+              {mystery && st.guess !== null && (
+                <div className="flex flex-wrap items-center gap-3">
+                  <ActionWord text={st.guess === st.opponent ? 'NAILED IT!' : 'WRONG GUESS'} size={22} />
+                  <span className="text-lg">
+                    {st.guess === st.opponent ? `+${GUESS_BONUS} points.` : `The class guessed ${strategyById(st.guess).name}.`}
+                  </span>
+                </div>
+              )}
+              <div className="text-2xl">The rival was {opp.name}.</div>
+              <p className="text-lg text-ink-2">{opp.description}</p>
             </div>
           )}
           {last && (
@@ -124,7 +141,7 @@ export function AdPlay({ st, accent }: { st: AdState; accent: string }) {
               />
               <Stat label="Weeks both saved" value={st.classMoves.filter((m, i) => m === 'S' && st.aiMoves[i] === 'S').length} sub={`of ${round}`} color={RED} />
               <Stat label="Brew Theory (class)" value={rupeeK(last.a)} color={PEN} />
-              <Stat label={mystery && !done ? 'Rival' : 'Bean There'} value={rupeeK(last.b)} color={RED} />
+              <Stat label={hidden ? 'Rival' : 'Bean There'} value={rupeeK(last.b)} color={RED} />
             </div>
           )}
           {!done && (
@@ -146,7 +163,7 @@ export function AdPlay({ st, accent }: { st: AdState; accent: string }) {
         </div>
       </div>
       <div className="card mt-6">
-        <TallyGrid a={st.classMoves} b={st.aiMoves} nameA="Brew Theory" nameB={mystery && !done ? 'Rival' : 'Bean There'} />
+        <TallyGrid a={st.classMoves} b={st.aiMoves} nameA="Brew Theory" nameB={hidden ? 'Rival' : 'Bean There'} />
       </div>
       <div className="mt-6 flex flex-wrap gap-3">
         {started && (
@@ -154,7 +171,7 @@ export function AdPlay({ st, accent }: { st: AdState; accent: string }) {
             Restart match
           </button>
         )}
-        {done && <NextStageButton label="Solve it" />}
+        {done && !hidden && <NextStageButton label="Solve it" />}
       </div>
     </div>
   );

@@ -88,3 +88,31 @@ export function euCurve(credible: boolean, r = 0, steps = 50) {
     return { p, euEnter: s.euEnter, uEnter: s.uEnter, stayOut: s.uStayOut };
   });
 }
+
+/* ---------- 5-market series; the class can be the founder or the incumbent ---------- */
+
+export const MARKETS = 5;
+
+export function drawDemand(p: number, rng: () => number = Math.random): Demand {
+  return rng() < p ? 'High' : 'Low';
+}
+
+/** Does a theory-following founder enter? */
+export function founderEnters(p: number, credible: boolean, r = 0) {
+  return solveTree({ p, credible, r }).decision === 'Enter';
+}
+
+/** Class = founder. Payoff to the class, with the incumbent best-responding. */
+export function founderPayoff(entered: boolean, demand: Demand, credible: boolean) {
+  return entered ? leafPayoff(demand, incumbentChoice(demand, credible), credible)[0] : STARTUP.stayOut[0];
+}
+
+/** Class = incumbent. Payoff to the class for its chosen response (only after entry). */
+export function incumbentPayoff(entered: boolean, demand: Demand, action: IncAction, credible: boolean) {
+  return entered ? leafPayoff(demand, action, credible)[1] : STARTUP.stayOut[1];
+}
+
+/** The SPNE incumbent's payoff on the same market: it best-responds to the drawn demand. */
+export function nashIncumbentPayoff(entered: boolean, demand: Demand, credible: boolean) {
+  return incumbentPayoff(entered, demand, incumbentChoice(demand, credible), credible);
+}
