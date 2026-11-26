@@ -1,4 +1,4 @@
-# Level 4: The Waiting Game (war of attrition)
+# Game 4: The Waiting Game (war of attrition)
 
 **One line:** two roommates wait to see who cracks and takes out the trash; waiting costs both of them every minute.
 

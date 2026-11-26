@@ -121,7 +121,7 @@ export function GameShell({
             <Link to="/" className="btn-text" aria-label="Back to the arcade">
               ◀ ARCADE
             </Link>
-            <span className="chip text-gold">LVL {number}</span>
+            <span className="chip text-gold">GAME {number}</span>
             <h1 className="min-w-0 truncate text-lg">{title}</h1>
             <div className="w-full lg:ml-auto lg:w-auto">
               <StepNav stages={stages} index={index} onSelect={goTo} accent={accent} />

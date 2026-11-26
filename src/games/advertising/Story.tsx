@@ -7,7 +7,7 @@ import { useBuildSteps } from '../../state/presenter';
 import { PD, ROUNDS, payoffs } from '../../engine/advertising';
 import { PixelShop } from './Shop';
 
-/** Level 3 opens as a pixel comic strip about two coffee shops. */
+/** Game 3 opens as a pixel comic strip about two coffee shops. */
 export function AdStory({}: { accent?: string }) {
   const [ss] = payoffs('S', 'S');
   const [as, sa] = payoffs('A', 'S');
@@ -91,7 +91,7 @@ export function AdStory({}: { accent?: string }) {
             <p className="mt-3 text-2xl font-bold">{panels[4]}</p>
           </Panel>
           <Notes
-            title="WHAT THIS LEVEL TEACHES"
+            title="WHAT THIS GAME TEACHES"
             items={['Dominant strategies that lead everyone somewhere worse', 'How repetition and reciprocity can rescue cooperation', 'Why mistakes (noise) poison strict reciprocity', 'Finite vs infinite horizons']}
           />
         </div>

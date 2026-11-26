@@ -286,7 +286,7 @@ export const chickenThumb = {
   pal: { K: C.K, B: C.blue, R: C.red, Y: C.gold, T: C.K, G: '#4b4b5e' },
 };
 
-/** Skyline buildings for the startup level. */
+/** Skyline buildings for the startup game. */
 export const tower = {
   map: [
     '....KKKKKKKK....',

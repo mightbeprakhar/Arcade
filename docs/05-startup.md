@@ -1,4 +1,4 @@
-# Level 5: Startup Entry (sequential game with chance)
+# Game 5: Startup Entry (sequential game with chance)
 
 **One line:** a startup decides whether to enter a market; Nature then decides whether demand is high or low; the incumbent then fights a price war or accommodates.
 

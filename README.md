@@ -4,11 +4,11 @@ A pixel-art arcade of five classic games from game theory. The class plays each 
 
 **Play it live:** https://arcade-gt.vercel.app
 
-Every level runs the same loop: **Story → Play → Solve → Simulate → Debrief**. The last screen, **Humans vs Nash**, compares the class's results with the equilibrium in every game.
+Every game runs the same loop: **Story → Play → Solve → Simulate → Debrief**. The last screen, **Humans vs Nash**, compares the class's results with the equilibrium in every game.
 
-## The five levels
+## The five games
 
-| Level | Game | What it teaches |
+| # | Game | What it teaches |
 |---|---|---|
 | 1 | **Ultimatum Game** | Backward induction and subgame-perfect equilibrium; why the "rational" offer is almost nothing; fairness as a payoff (Fehr–Schmidt inequity aversion); the strategy method |
 | 2 | **Game of Chicken** | Two pure equilibria and a coordination problem; mixed strategies by indifference; why your mix depends on your opponent's payoffs; risk dominance |

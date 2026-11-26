@@ -1,4 +1,4 @@
-# Level 1: Ultimatum Game
+# Game 1: Ultimatum Game
 
 **One line:** one player proposes how to split ₹10,000, the other accepts or rejects; a rejection means both get nothing.
 

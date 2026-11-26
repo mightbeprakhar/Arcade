@@ -72,7 +72,7 @@ export function AttStory() {
             <p className="mt-2 text-2xl font-bold">{panels[4]}</p>
           </Panel>
           <Notes
-            title="WHAT THIS LEVEL TEACHES"
+            title="WHAT THIS GAME TEACHES"
             items={['War of attrition: waiting games in continuous time', 'Mixed strategies as a constant “hazard rate”', 'Rent dissipation: fighting burns the whole prize', 'Why your quitting rate depends on your opponent’s costs']}
           />
         </div>

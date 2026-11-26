@@ -10,7 +10,7 @@ import { speak, speechSupported, stopSpeaking } from '../../state/speech';
 import { CHICKEN_BASE } from '../../engine/chicken';
 import type { ChickenState } from './ChickenGame';
 
-/** Level 2 opens as a pixel comic strip. Each → reveals the next panel. */
+/** Game 2 opens as a pixel comic strip. Each → reveals the next panel. */
 export function ChickenStory({ st }: { st: ChickenState; accent?: string }) {
   const { bothSwerve, swerveLoss, straightWin, crashCar } = CHICKEN_BASE;
   const panels = [

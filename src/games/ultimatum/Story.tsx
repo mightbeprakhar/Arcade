@@ -8,7 +8,7 @@ import { PIE, STEP, outcome } from '../../engine/ultimatum';
 
 const r = (n: number) => `₹${n.toLocaleString('en-IN')}`;
 
-/** Level 1 as a pixel comic: one offer, one answer. */
+/** Game 1 as a pixel comic: one offer, one answer. */
 export function UltStory() {
   const ex = 3 * STEP;
   const [keep, give] = outcome(ex, true);
@@ -92,7 +92,7 @@ export function UltStory() {
             <p className="mt-2 text-2xl font-bold">{panels[4]}</p>
           </Panel>
           <Notes
-            title="WHAT THIS LEVEL TEACHES"
+            title="WHAT THIS GAME TEACHES"
             items={['Backward induction and subgame-perfect equilibrium', 'Why the “rational” offer is almost nothing', 'Fairness as a payoff: inequity aversion (Fehr–Schmidt)', 'The strategy method: deciding before you see the move']}
           />
         </div>

@@ -1,4 +1,4 @@
-# Level 3: Advertising Game (repeated Prisoner's Dilemma)
+# Game 3: Advertising Game (repeated Prisoner's Dilemma)
 
 **One line:** two coffee shops choose each week to advertise or save; advertising is always individually better, yet both end up worse off.
 

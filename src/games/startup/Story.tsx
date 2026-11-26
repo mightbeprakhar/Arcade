@@ -92,7 +92,7 @@ export function StartupStory() {
             <p className="mt-2 text-2xl font-bold">{panels[4]}</p>
           </Panel>
           <Notes
-            title="WHAT THIS LEVEL TEACHES"
+            title="WHAT THIS GAME TEACHES"
             items={['Sequential games with a chance move (Nature)', 'Credible vs non-credible threats', 'Backward induction with expected utility', 'How risk attitude changes the decision']}
           />
         </div>

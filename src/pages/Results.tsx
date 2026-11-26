@@ -78,7 +78,7 @@ export default function Results() {
             <Sprite {...nash} px={8} title="John Nash, pixelated" />
             <Bubble side="bottom-right">
               {played.length === 0
-                ? 'Play a level and I’ll keep score.'
+                ? 'Play a game and I’ll keep score.'
                 : beat > played.length / 2
                   ? 'Irrational… and richer. Interesting.'
                   : beat === 0
@@ -108,7 +108,7 @@ export default function Results() {
             return (
               <div key={g.id} className="flex flex-wrap items-center justify-between gap-4 border-4 border-dashed border-panel2 p-4">
                 <span className="font-display text-2xl font-bold text-ink-3">
-                  <span className="font-pixel text-xs">LVL {g.number}</span> · {g.title}
+                  <span className="font-pixel text-xs">GAME {g.number}</span> · {g.title}
                 </span>
                 <Link to={g.path} className="btn-ghost">
                   NOT PLAYED · PLAY ▶
@@ -121,7 +121,7 @@ export default function Results() {
             <Panel key={g.id} className="p-4">
               <div className="grid grid-cols-1 items-center gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
                 <div>
-                  <div className="font-pixel text-xs text-gold">LVL {g.number}</div>
+                  <div className="font-pixel text-xs text-gold">GAME {g.number}</div>
                   <div className="font-display text-3xl font-bold">{g.title}</div>
                   <div className="text-lg text-teal">{g.concept}</div>
                 </div>

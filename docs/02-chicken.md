@@ -1,4 +1,4 @@
-# Level 2: Game of Chicken (the flagship level)
+# Game 2: Game of Chicken (the flagship game)
 
 **One line:** two drivers on a one-lane bridge choose to swerve or go straight at the same time; whoever swerves alone loses face, and if neither swerves they crash.
 

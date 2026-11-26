@@ -68,8 +68,8 @@ export default function Hub() {
             </div>
           </div>
 
-          {/* Product moment: a pixel comic panel straight out of Level 2. */}
-          <Link to="/chicken" className="group block focus:outline-none focus-visible:outline focus-visible:outline-4 focus-visible:outline-gold" aria-label="Preview of Level 2, Game of Chicken">
+          {/* Product moment: a pixel comic panel straight out of game 2. */}
+          <Link to="/chicken" className="group block focus:outline-none focus-visible:outline focus-visible:outline-4 focus-visible:outline-gold" aria-label="Preview of game 2, Game of Chicken">
             <div className="relative border-4 border-black bg-[#241f52] shadow-hard halftone-light">
               <div className="grid grid-cols-2">
                 <div className="flex flex-col items-start gap-6 border-r-4 border-black p-6">
@@ -82,14 +82,14 @@ export default function Hub() {
                 </div>
               </div>
               <div className="border-t-4 border-black bg-gold px-4 py-2 text-lg text-black">
-                <span className="font-pixel text-xs">LVL 2 · CHICKEN</span> · Who blinks first? The class decides. ▶
+                <span className="font-pixel text-xs">GAME 2 · CHICKEN</span> · Who blinks first? The class decides. ▶
               </div>
             </div>
           </Link>
         </header>
 
-        <section className="mt-16" aria-label="Level select">
-          <h2 className="mb-6 text-sm text-ink-3">SELECT LEVEL</h2>
+        <section className="mt-16" aria-label="Choose a game">
+          <h2 className="mb-6 text-sm text-ink-3">CHOOSE A GAME</h2>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {GAMES.map((g) => {
               const done = !!results[g.id];
@@ -105,8 +105,8 @@ export default function Hub() {
                   </div>
                   <div className="flex flex-1 flex-col p-4">
                     <div className="flex items-center justify-between">
-                      <span className="font-pixel text-xs text-gold">LEVEL {g.number}</span>
-                      {done && <span className="chip bg-teal text-black">CLEARED</span>}
+                      <span className="font-pixel text-xs text-gold">GAME {g.number}</span>
+                      {done && <span className="chip bg-teal text-black">PLAYED</span>}
                     </div>
                     <div className="mt-3 font-display text-3xl font-bold">{g.title}</div>
                     <div className="mt-1 text-lg text-teal">{g.concept}</div>
@@ -130,7 +130,7 @@ export default function Hub() {
                 <div className="mt-3 font-display text-3xl font-bold">Humans vs Nash</div>
                 <p className="mt-3 flex-1 text-xl">What the class did against what theory predicted, with the payoff gap.</p>
                 <span className="mt-4 font-pixel text-xs">
-                  {played}/{GAMES.length} CLEARED ▶
+                  {played}/{GAMES.length} PLAYED ▶
                 </span>
               </div>
             </Link>

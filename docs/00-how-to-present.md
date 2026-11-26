@@ -2,7 +2,7 @@
 
 The arcade is built for a live, camera-free class session. One presenter drives the laptop on the projector; the room votes with a show of hands.
 
-## The loop every level follows
+## The loop every game follows
 
 | Stage | What happens on screen | What the presenter does |
 |---|---|---|
@@ -12,7 +12,7 @@ The arcade is built for a live, camera-free class session. One presenter drives 
 | **Simulate** | Sliders and charts that run thousands of games | Move one slider at a time and say what changed and why |
 | **Debrief** | Class vs Nash, takeaways, discussion questions | Ask one discussion question and take two answers |
 
-The last screen of the talk is **Humans vs Nash** (`/results`): every level the class played, the class's payoff, the equilibrium payoff and the gap.
+The last screen of the talk is **Humans vs Nash** (`/results`): every game the class played, the class's payoff, the equilibrium payoff and the gap.
 
 ## Keyboard
 
@@ -28,15 +28,15 @@ Everything is also a button on screen, so a clicker or a mouse works too.
 
 ## Suggested running order and timing (about 40 minutes)
 
-1. Hub, 1 min: show the level select and the comic preview.
-2. **Chicken**, 10 min: the flagship level. Do every stage.
+1. Hub, 1 min: show the game cards and the comic preview.
+2. **Chicken**, 10 min: the flagship game. Do every stage.
 3. Ultimatum, 7 min: round A (class proposes), then the tree in Solve.
 4. Advertising, 8 min: play 3–4 weeks live, then autoplay the rest; show the tournament at 0% and 5% noise.
 5. Startup, 6 min: play once, then drag the probability slider and flip "credible threat".
 6. Waiting Game, 6 min: play until someone cracks; show the survival curve.
 7. Humans vs Nash, 2 min: the closing slide.
 
-If time is short, Chicken is the level to do completely.
+If time is short, Chicken is the game to do completely.
 
 ## Demo-day checklist
 

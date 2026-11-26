@@ -7,7 +7,7 @@ export type GameMeta = {
   title: string;
   concept: string;
   hook: string;
-  /** All levels share the one accent (red pen); kept as a field so components stay generic. */
+  /** All games share the one accent (red pen); kept as a field so components stay generic. */
   accent: string;
 };
 
