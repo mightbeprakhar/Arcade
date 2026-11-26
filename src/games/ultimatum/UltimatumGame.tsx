@@ -16,20 +16,28 @@ export type { UltRound };
 export type UltState = {
   mode: UltMode;
   setMode: (m: UltMode) => void;
+  /** Rounds of the current part (Round A or Round B); each part keeps its own. */
   rounds: UltRound[];
   addRound: (r: UltRound) => void;
-  resetRounds: () => void;
+  /** Clears one part only (defaults to the current one), so Round A survives Round B and vice versa. */
+  resetRounds: (mode?: UltMode) => void;
 };
 
 export default function UltimatumGame() {
   const meta = metaById('ultimatum');
   const [mode, setMode] = useState<UltMode>('proposer');
-  const [rounds, setRounds] = useState<UltRound[]>([]);
-  // Record after every round so Humans vs Nash always shows the bank so far.
+  const [parts, setParts] = useState<Record<UltMode, UltRound[]>>({ proposer: [], responder: [] });
+  // Record after every round so Humans vs Nash always shows both parts' banks so far.
   useEffect(() => {
-    recordUltimatum(rounds);
-  }, [rounds]);
-  const st: UltState = { mode, setMode, rounds, addRound: (r) => setRounds((x) => [...x, r]), resetRounds: () => setRounds([]) };
+    recordUltimatum(parts.proposer, parts.responder);
+  }, [parts]);
+  const st: UltState = {
+    mode,
+    setMode,
+    rounds: parts[mode],
+    addRound: (r) => setParts((x) => ({ ...x, [r.mode]: [...x[r.mode], r] })),
+    resetRounds: (m = mode) => setParts((x) => ({ ...x, [m]: [] })),
+  };
   const stages: Stage[] = [
     { id: 'story', label: 'Story', render: () => <UltStory /> },
     { id: 'play', label: 'Play', render: () => <UltPlay st={st} /> },

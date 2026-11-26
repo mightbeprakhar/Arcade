@@ -3,7 +3,7 @@ import { PD, ROUNDS, finiteHorizonSPNE, payoffs, strategyById, type Move as AdMo
 import { ALPHA_TYPES, nashProposerPayoff, nashResponderPayoff, outcome, spne } from '../engine/ultimatum';
 import { founderEnters, founderPayoff, incumbentPayoff, nashIncumbentPayoff, type Demand, type IncAction } from '../engine/startup';
 import { ATTRITION, attritionPayoffs, solveSymmetric } from '../engine/attrition';
-import { GUESS_BONUS, performancePoints } from '../engine/score';
+import { GUESS_BONUS, ranges, scalePoints } from '../engine/score';
 import { recordResult } from './results';
 
 /*
@@ -16,7 +16,7 @@ const rupee = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
 /* ---------- Chicken ---------- */
 export type ChickenRound = { a: Move; b: Move; committed: boolean };
 
-export function recordChickenSeries(sol: ChickenSolution, rounds: ChickenRound[]) {
+export function recordChickenSeries(sol: ChickenSolution, rounds: ChickenRound[], asymmetric: boolean) {
   if (!rounds.length) return;
   const t = seriesTally(rounds, sol.game);
   recordResult('chicken', {
@@ -25,12 +25,13 @@ export function recordChickenSeries(sol: ChickenSolution, rounds: ChickenRound[]
     nashPrediction: `Mix: straight ${pct(sol.mixed.rowP1)} (MSNE value ${sol.mixed.rowValue} per round)`,
     nashPayoff: +nashSeriesValue(sol, t.played).toFixed(3),
     unit: `pts for ${sol.game.rowPlayer}`,
-    basePoints: performancePoints('chicken', t.classTotal, t.classWins),
+    // Points follow payoff (not rounds won), so against the MSNE driver every strategy has the same expected score.
+    basePoints: scalePoints(t.classTotal, ranges.chicken(asymmetric), t.played),
     rounds: t.played,
   });
 }
 
-export function recordChickenRoom(sol: ChickenSolution, o: { a: Move; b: Move }) {
+export function recordChickenRoom(sol: ChickenSolution, o: { a: Move; b: Move }, asymmetric: boolean) {
   const g = sol.game;
   const res = payoff(g, o.a, o.b);
   recordResult('chicken', {
@@ -39,24 +40,28 @@ export function recordChickenRoom(sol: ChickenSolution, o: { a: Move; b: Move })
     nashPrediction: `Mix: ${g.rowPlayer} straight ${pct(sol.mixed.rowP1)}, ${g.colPlayer} ${pct(sol.mixed.colP1)}`,
     nashPayoff: sol.mixed.rowValue + sol.mixed.colValue,
     unit: 'pts (both drivers)',
-    basePoints: 0,
+    // Both cars are the class: average the two drivers' scaled scores.
+    basePoints: Math.round((scalePoints(res[0], ranges.chicken(asymmetric)) + scalePoints(res[1], ranges.chicken(false))) / 2),
     note: o.a === 1 && o.b === 1 ? 'The class crashed.' : undefined,
   });
 }
 
 /* ---------- Advertising ---------- */
-export function recordAdvertising(classMoves: AdMove[], aiMoves: AdMove[], opponent: string, guessCorrect?: boolean) {
+/** `guess` is the class's locked-in guess for a mystery rival (null until made). The rival's name stays hidden until then. */
+export function recordAdvertising(classMoves: AdMove[], aiMoves: AdMove[], opponent: string, mystery: boolean, guess: string | null) {
   if (!classMoves.length) return;
+  const guessCorrect = mystery && guess !== null ? guess === opponent : undefined;
+  const rivalName = mystery && guess === null ? 'a mystery rival' : strategyById(opponent).name;
   const total = classMoves.reduce((s, m, i) => s + payoffs(m, aiMoves[i])[0], 0);
   const ads = classMoves.filter((m) => m === 'A').length;
   const weeks = classMoves.length;
   recordResult('advertising', {
-    classChoice: `Ad ${ads}/${weeks} weeks vs ${weeks >= ROUNDS ? strategyById(opponent).name : 'the rival'}${guessCorrect === undefined ? '' : guessCorrect ? ' · guessed the rival' : ' · guess missed'}`,
+    classChoice: `Ad ${ads}/${weeks} weeks vs ${weeks >= ROUNDS ? rivalName : 'the rival'}${guessCorrect === undefined ? '' : guessCorrect ? ' · guessed the rival' : ' · guess missed'}`,
     classPayoff: total,
     nashPrediction: 'Ad every week (SPNE)',
     nashPayoff: finiteHorizonSPNE(weeks).length * PD.P,
     unit: '₹k',
-    basePoints: performancePoints('advertising', total),
+    basePoints: scalePoints(total, ranges.advertising(), weeks),
     bonus: guessCorrect ? GUESS_BONUS : 0,
     rounds: weeks,
   });
@@ -83,18 +88,26 @@ export function ultimatumBank(rounds: UltRound[]) {
   return { bank, nash, accepted: rounds.filter((r) => r.accepted).length };
 }
 
-export function recordUltimatum(rounds: UltRound[]) {
-  if (!rounds.length) return;
-  const mode = rounds[0].mode;
-  const { bank, nash, accepted } = ultimatumBank(rounds);
+/** Records Round A (class proposes) and Round B (class responds) together, so one never erases the other. */
+export function recordUltimatum(roundsA: UltRound[], roundsB: UltRound[]) {
+  const parts = [
+    { label: 'Round A · proposer', rounds: roundsA, mode: 'proposer' as const },
+    { label: 'Round B · responder', rounds: roundsB, mode: 'responder' as const },
+  ].filter((p) => p.rounds.length);
+  if (!parts.length) return;
+  const sums = parts.map((p) => ({ ...p, ...ultimatumBank(p.rounds) }));
+  const classPayoff = sums.reduce((s, p) => s + p.bank, 0);
+  const nashPayoff = sums.reduce((s, p) => s + p.nash, 0);
   recordResult('ultimatum', {
-    classChoice: `${mode === 'proposer' ? 'Proposer' : 'Responder'}, ${rounds.length} round${rounds.length === 1 ? '' : 's'}: ${accepted} accepted, bank ${rupee(bank)}`,
-    classPayoff: bank,
-    nashPrediction: mode === 'proposer' ? `Offer ${rupee(spne()[0].offer)} every round (SPNE)` : 'Accept any offer above ₹0',
-    nashPayoff: nash,
+    classChoice: sums.map((p) => `${p.label}: ${p.accepted}/${p.rounds.length} deals`).join(' · '),
+    classPayoff,
+    nashPrediction: sums.map((p) => (p.mode === 'proposer' ? `offer ${rupee(spne()[0].offer)}` : 'accept anything above ₹0')).join(' · ') + ' (SPNE)',
+    nashPayoff,
     unit: '₹ banked',
-    basePoints: performancePoints('ultimatum', bank),
-    rounds: rounds.length,
+    // Each round is scaled to 0–500 on its own range; the game scores their average.
+    basePoints: Math.round(sums.reduce((s, p) => s + scalePoints(p.bank, ranges.ultimatum(p.mode), p.rounds.length), 0) / sums.length),
+    rounds: sums.reduce((s, p) => s + p.rounds.length, 0),
+    details: sums.map((p) => ({ label: p.label, classPayoff: p.bank, nashPayoff: p.nash })),
   });
 }
 
@@ -128,7 +141,7 @@ export function recordStartup(role: StartupRole, markets: Market[], p: number, c
     nashPrediction: role === 'founder' ? `${founderEnters(p, credible) ? 'Enter' : 'Stay out'} every market (p = ${p.toFixed(2)}${credible ? ', credible' : ''})` : `Best-respond: ${credible ? 'fight only in Low' : 'always accommodate'}`,
     nashPayoff: nash,
     unit: `profit pts as ${role}`,
-    basePoints: performancePoints('startup', score),
+    basePoints: scalePoints(score, ranges.startup(role, credible), markets.length),
     rounds: markets.length,
   });
 }
@@ -144,6 +157,6 @@ export function recordAttrition(rd: { minute: number; classConceded: boolean; es
     nashPrediction: `Quit at rate λ = ${s.lambda}/min (mean ${s.meanPerPlayer} min)`,
     nashPayoff: s.expectedPayoff,
     unit: '₹',
-    basePoints: performancePoints('attrition', pay),
+    basePoints: scalePoints(pay, ranges.attrition()),
   });
 }

@@ -17,6 +17,8 @@ export type GameResult = {
   bonus?: number;
   /** Rounds played so far in a series (results are recorded after every round). */
   rounds?: number;
+  /** Sub-results shown as separate lines (e.g. Ultimatum Round A and Round B). */
+  details?: { label: string; classPayoff: number; nashPayoff: number }[];
   at: number;
 };
 

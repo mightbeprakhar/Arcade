@@ -24,7 +24,13 @@ The arcade is built for a live, camera-free class session. One presenter drives 
 
 ## Points and the beat-Nash badge
 
-Each game's payoff is converted to points (formulas in `src/engine/score.ts`), plus bonuses for a correct prediction or mystery guess. A game earns **★ Beat Nash** when the class's payoff beats what the equilibrium player would have earned, in series games on the same strangers or markets. Points and badges show on the hub and on Humans vs Nash, and they update after every round.
+Each game's payoff is scaled onto the same **0–500 points** using that game's worst and best possible payoff per round, so no single game dominates the total (formulas and ranges in `src/engine/score.ts`). Bonuses on top: **+100** for a correct prediction, **+100** for guessing the mystery rival.
+
+- **Chicken** scores the class's payoff, not rounds won, so a crash hurts. Against the equilibrium AI driver every strategy has the same *expected* score; that is exactly what indifference means (the commit power-up is the exception, because the AI reacts to it).
+- **Ultimatum** keeps Round A and Round B separately; the game scores the average of the two.
+- **★ Beat Nash** means the class's payoff beat what the equilibrium player would have earned, in series games against the same strangers or markets.
+
+Points and badges show on the hub and on Humans vs Nash and update after every round. A mystery rival's name stays hidden everywhere until the class locks in its guess. **GAME OVER** appears on Humans vs Nash once all five games are played.
 
 The last screen of the talk is **Humans vs Nash** (`/results`): every game the class played, the class's payoff, the equilibrium payoff and the gap.
 

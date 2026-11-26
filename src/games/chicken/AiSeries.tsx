@@ -8,6 +8,7 @@ import { Sprite } from '../../components/pixel/Sprite';
 import { C, face } from '../../components/pixel/sprites';
 import { BEST_OF, STRAIGHT, aiChickenMove, commitResponse, payoff, roundWinner, seriesTally, type ChickenSolution, type Move } from '../../engine/chicken';
 import { LINES, MOODS } from './Play';
+import { ranges, scaleExact, scalePoints } from '../../engine/score';
 import type { ChickenState } from './ChickenGame';
 
 const pct = (x: number) => `${Math.round(x * 100)}%`;
@@ -134,8 +135,13 @@ export function AiSeries({ st, sol }: { st: ChickenState; sol: ChickenSolution }
               <>
                 <ActionWord text={tally.classWins > tally.aiWins ? 'CLASS WINS!' : tally.aiWins > tally.classWins ? 'AI WINS' : 'DRAW'} size={32} />
                 <Narration>
-                  Final: class {tally.classWins}, AI {tally.aiWins}. Class payoff {tally.classTotal} vs {(sol.mixed.rowValue * tally.played).toFixed(1)} expected for any strategy against
-                  an MSNE driver.
+                  Final: class {tally.classWins}, AI {tally.aiWins}. Class payoff {tally.classTotal}, worth {scalePoints(tally.classTotal, ranges.chicken(st.asymmetric), tally.played)} points.
+                </Narration>
+                <Narration current={false}>
+                  Against a driver who mixes at the equilibrium, every way of playing (always swerve, always straight, any mix) has the same expected score:{' '}
+                  {(sol.mixed.rowValue * tally.played).toFixed(1)} payoff, about {Math.round(scaleExact(sol.mixed.rowValue * tally.played, ranges.chicken(st.asymmetric), tally.played))} points over{' '}
+                  {tally.played} rounds. That is what indifference means: only luck separates strategies.
+                  {st.rounds.some((r) => r.committed) ? ' The commit is the exception: it changes what the AI does, because the AI sees it.' : ''}
                 </Narration>
                 <div className="flex flex-wrap gap-4">
                   <button className="btn-ghost" onClick={newSeries}>

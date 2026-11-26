@@ -85,7 +85,7 @@ export function AdSolve({ accent }: { accent: string }) {
           </div>
           <div className="mt-3 h-56">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={curve} margin={{ top: 10, right: 20, left: 10, bottom: 10 }}>
+              <LineChart data={curve} margin={{ top: 40, right: 24, left: 10, bottom: 10 }}>
                 <CartesianGrid {...grid} />
                 <XAxis dataKey="d" type="number" domain={[0, 0.9]} ticks={[0, 0.25, 0.5, 0.75, 0.9]} {...axis} />
                 <YAxis {...axis} width={60} tickFormatter={(v: number) => rupeeK(v)} />

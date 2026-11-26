@@ -101,7 +101,7 @@ export default function Results() {
             </div>
             <div className="border-4 border-black bg-deep p-3">
               <div className="font-pixel text-xs text-ink-3">POINTS</div>
-              <div className="font-mono text-6xl leading-none text-gold">{totalPts.toLocaleString('en-IN')}</div>
+              <div className="font-mono text-5xl leading-none text-gold">{totalPts.toLocaleString('en-IN')}</div>
             </div>
           </div>
         </Panel>
@@ -131,18 +131,31 @@ export default function Results() {
                   <div className="font-display text-3xl font-bold">{g.title}</div>
                   <div className="text-lg text-teal">{g.concept}</div>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <div>
-                    <span className="font-pixel text-xs text-blue">CLASS </span>
-                    <span className="text-lg">{r.classChoice}</span>
-                    <span className="ml-2 font-mono text-3xl text-blue">{fmt(r.classPayoff)}</span>
+                    <div className="font-pixel text-xs text-blue">CLASS</div>
+                    <div className="text-lg">{r.classChoice}</div>
                   </div>
                   <div>
-                    <span className="font-pixel text-xs text-gold">NASH </span>
-                    <span className="text-lg">{r.nashPrediction}</span>
-                    <span className="ml-2 font-mono text-3xl text-gold">{fmt(r.nashPayoff)}</span>
+                    <div className="font-pixel text-xs text-gold">NASH</div>
+                    <div className="text-lg">{r.nashPrediction}</div>
                   </div>
-                  <div className="text-sm text-ink-3">Units: {r.unit}</div>
+                  <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1 border-t-2 border-black pt-2">
+                    {(r.details ?? [{ label: '', classPayoff: r.classPayoff, nashPayoff: r.nashPayoff }]).map((d) => (
+                      <div key={d.label} className="flex flex-wrap items-baseline gap-x-4">
+                        {d.label && <span className="text-sm text-ink-3">{d.label}</span>}
+                        <span>
+                          <span className="font-pixel text-xs text-blue">CLASS </span>
+                          <span className="font-mono text-3xl text-blue">{fmt(d.classPayoff)}</span>
+                        </span>
+                        <span>
+                          <span className="font-pixel text-xs text-gold">NASH </span>
+                          <span className="font-mono text-3xl text-gold">{fmt(d.nashPayoff)}</span>
+                        </span>
+                      </div>
+                    ))}
+                    <span className="text-sm text-ink-3">{r.unit}</span>
+                  </div>
                 </div>
                 <PairBars a={r.classPayoff} b={r.nashPayoff} />
                 <div className="text-center">
@@ -161,7 +174,7 @@ export default function Results() {
         })}
       </section>
 
-      {played.length > 0 && (
+      {played.length === GAMES.length && (
         <div className="mt-12 grid grid-cols-1 items-center gap-6 md:grid-cols-[minmax(0,1fr)_auto]">
           <Narration>
             Nash equilibrium predicts what players do if everyone is rational, selfish and knows everyone else is too. Where the class beat it, humans cooperated, punished or

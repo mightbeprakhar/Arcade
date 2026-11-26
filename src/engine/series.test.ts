@@ -3,7 +3,8 @@ import { BEST_OF, aiChickenMove, commitResponse, nashSeriesValue, roundWinner, s
 import { ALPHA_TYPES, nashProposerPayoff, nashResponderPayoff, ULT_ROUNDS } from './ultimatum';
 import { MARKETS, founderEnters, founderPayoff, incumbentPayoff, nashIncumbentPayoff } from './startup';
 import { predictionFor } from './predictions';
-import { beatNash, performancePoints, totalPoints, PREDICTION_BONUS } from './score';
+import { MAX_POINTS, beatNash, ranges, scaleExact, scalePoints, totalPoints, PREDICTION_BONUS } from './score';
+import { expectedPayoffs } from './bimatrix';
 import { mulberry32 } from './random';
 
 describe('Chicken best-of-5 vs AI', () => {
@@ -82,12 +83,59 @@ describe('Predictions match the engine', () => {
 });
 
 describe('Scoring', () => {
-  it('converts payoffs to points', () => {
-    expect(performancePoints('ultimatum', 30000)).toBe(300);
-    expect(performancePoints('chicken', -8, 2)).toBe(200);
-    expect(performancePoints('advertising', 1130)).toBe(113);
-    expect(performancePoints('startup', 8)).toBe(200);
-    expect(performancePoints('attrition', 80)).toBe(80);
+  it('every game is scaled onto the same 0–500 range', () => {
+    const cases = [
+      ranges.chicken(false),
+      ranges.chicken(true),
+      ranges.ultimatum('proposer'),
+      ranges.ultimatum('responder'),
+      ranges.advertising(),
+      ranges.startup('founder', false),
+      ranges.startup('founder', true),
+      ranges.startup('incumbent', false),
+      ranges.attrition(),
+    ];
+    for (const r of cases) {
+      expect(scalePoints(r.worst * 5, r, 5)).toBe(0);
+      expect(scalePoints(r.best * 5, r, 5)).toBe(MAX_POINTS);
+    }
+  });
+  it('per-round ranges come from the engine', () => {
+    expect(ranges.chicken(false)).toEqual({ worst: -10, best: 1 });
+    expect(ranges.chicken(true)).toEqual({ worst: -4, best: 1 });
+    expect(ranges.ultimatum('proposer')).toEqual({ worst: 0, best: 9000 });
+    expect(ranges.ultimatum('responder')).toEqual({ worst: 0, best: 6000 });
+    expect(ranges.advertising()).toEqual({ worst: 30, best: 80 });
+    expect(ranges.startup('founder', false)).toEqual({ worst: 0, best: 6 });
+    expect(ranges.startup('founder', true)).toEqual({ worst: -3, best: 6 });
+    expect(ranges.startup('incumbent', false)).toEqual({ worst: 2, best: 10 });
+    expect(ranges.attrition()).toEqual({ worst: -200, best: 200 });
+  });
+  it('examples', () => {
+    expect(scalePoints(22500, ranges.ultimatum('proposer'), 5)).toBe(250);
+    expect(scalePoints(1200, ranges.advertising(), 20)).toBe(300); // TFT vs TFT: (1200 - 600) / (1600 - 600)
+    expect(scalePoints(0, ranges.attrition())).toBe(250);
+    expect(scalePoints(-500, ranges.attrition())).toBe(0); // clamped
+  });
+  it('Chicken vs the MSNE driver: every strategy has the same expected score (indifference)', () => {
+    for (const asym of [false, true]) {
+      const sol = solveChicken(asym);
+      const r = ranges.chicken(asym);
+      const q = sol.mixed.colP1;
+      const expectedPoints = (p: number) => {
+        // expected points per round = Σ P(cell) · points(cell payoff); points are affine in payoff
+        let e = 0;
+        for (const a of [0, 1] as const)
+          for (const b of [0, 1] as const) e += (a ? p : 1 - p) * (b ? q : 1 - q) * scaleExact(sol.game.payoffs[a][b][0], r);
+        return e;
+      };
+      const ref = expectedPoints(0);
+      for (const p of [0.1, 0.25, 0.5, 0.9, 1]) {
+        expect(expectedPayoffs(sol.game, p, q)[0]).toBeCloseTo(sol.mixed.rowValue, 10);
+        expect(expectedPoints(p)).toBeCloseTo(ref, 8);
+      }
+      expect(ref).toBeCloseTo(scaleExact(sol.mixed.rowValue, r), 8);
+    }
   });
   it('adds the prediction bonus and compares with Nash', () => {
     expect(totalPoints(50, true, 100)).toBe(50 + 100 + PREDICTION_BONUS);

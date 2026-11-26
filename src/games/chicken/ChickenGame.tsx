@@ -38,11 +38,11 @@ export default function ChickenGame() {
 
   // Record for Humans vs Nash after every finished round.
   useEffect(() => {
-    if (rounds.length) recordChickenSeries(sol, rounds);
+    if (rounds.length) recordChickenSeries(sol, rounds, asymmetric);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rounds.length]);
   useEffect(() => {
-    if (outcome) recordChickenRoom(sol, outcome);
+    if (outcome) recordChickenRoom(sol, outcome, asymmetric);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [outcome]);
 

@@ -133,8 +133,10 @@ export function UltPlay({ st }: { st: UltState }) {
           onNext={nextStranger}
           onAgain={again}
           onRoundB={() => {
-            again();
+            // Keep Round A's results; start Round B fresh.
             st.setMode('responder');
+            st.resetRounds('responder');
+            nextStranger();
           }}
         />
       )}

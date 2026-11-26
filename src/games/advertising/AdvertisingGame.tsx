@@ -33,7 +33,7 @@ export default function AdvertisingGame() {
   const [guess, setGuess] = useState<string | null>(null);
   // Record for Humans vs Nash after every week, and again when the mystery guess is made.
   useEffect(() => {
-    recordAdvertising(classMoves, aiMoves, opponent, mystery && guess ? guess === opponent : undefined);
+    recordAdvertising(classMoves, aiMoves, opponent, mystery, guess);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [classMoves.length, guess]);
   const st: AdState = {
