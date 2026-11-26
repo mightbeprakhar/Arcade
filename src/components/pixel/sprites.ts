@@ -318,3 +318,85 @@ export const trashBag = {
   pal: { K: C.K, G: '#3a3a52', D: '#5c5c78' },
 };
 export const fly = { map: ['W.W', '.K.'], pal: { W: '#d4cdee', K: C.K } };
+
+/**
+ * NASH-BOT: the friendly arcade robot who keeps score on Humans vs Nash.
+ * A boxy head with an antenna light and an LED visor; the visor's eyes and mouth show the mood.
+ */
+export type BotMood = 'happy' | 'smug' | 'shocked';
+export function robot(mood: BotMood): { map: string[]; pal: Palette } {
+  const W = 20;
+  const H = 23;
+  const g = Array.from({ length: H }, () => Array.from({ length: W }, () => '.'));
+  const put = (x: number, y: number, c: string) => {
+    if (x >= 0 && x < W && y >= 0 && y < H) g[y][x] = c;
+  };
+  const rect = (x0: number, y0: number, x1: number, y1: number, c: string) => {
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) put(x, y, c);
+  };
+  // antenna
+  rect(9, 0, 10, 1, 'Y');
+  rect(9, 2, 10, 3, 'K');
+  // head with rounded corners, light top edge, darker right side
+  rect(4, 4, 15, 4, 'K');
+  rect(3, 5, 16, 5, 'K');
+  rect(2, 6, 17, 16, 'K');
+  rect(4, 5, 15, 5, 'L');
+  rect(3, 6, 16, 15, 'G');
+  rect(4, 6, 14, 6, 'L');
+  rect(15, 7, 16, 15, 'D');
+  rect(3, 16, 16, 16, 'K');
+  // ear bolts
+  rect(0, 9, 1, 12, 'K');
+  put(1, 10, 'R');
+  put(1, 11, 'R');
+  rect(18, 9, 19, 12, 'K');
+  put(18, 10, 'R');
+  put(18, 11, 'R');
+  // visor
+  rect(4, 8, 14, 14, 'K');
+  rect(5, 9, 13, 13, 'S');
+  // eyes
+  if (mood === 'happy') {
+    [6, 11].forEach((x) => {
+      put(x, 11, 'C');
+      put(x + 1, 10, 'C');
+      put(x + 2, 11, 'C');
+    });
+  } else if (mood === 'shocked') {
+    [6, 11].forEach((x) => {
+      rect(x, 9, x + 2, 11, 'C');
+      put(x + 1, 10, 'S');
+    });
+  } else {
+    // smug: half-closed lids
+    [6, 11].forEach((x) => {
+      rect(x, 11, x + 2, 11, 'C');
+      put(x + 2, 10, 'C');
+    });
+  }
+  // mouth LED
+  if (mood === 'happy') {
+    put(7, 12, 'P');
+    rect(8, 13, 10, 13, 'P');
+    put(11, 12, 'P');
+  } else if (mood === 'shocked') {
+    rect(8, 12, 10, 13, 'P');
+    put(9, 12, 'S');
+  } else {
+    rect(8, 13, 11, 13, 'P');
+    put(12, 12, 'P');
+  }
+  // neck and shoulders with a chest light
+  rect(8, 17, 11, 17, 'D');
+  rect(3, 18, 16, 18, 'K');
+  rect(2, 19, 17, 22, 'K');
+  rect(3, 19, 16, 22, 'B');
+  rect(14, 19, 16, 22, 'b');
+  rect(8, 20, 11, 21, 'Y');
+  rect(9, 20, 9, 20, 'W');
+  return {
+    map: g.map((r) => r.join('')),
+    pal: { K: C.K, Y: C.gold, G: '#a39bc9', L: '#d4cdee', D: '#7a71ad', R: C.red, S: '#0b0a1c', C: '#5ef0ff', P: '#ff4fd8', B: '#3a3378', b: '#2b2659', W: C.W },
+  };
+}

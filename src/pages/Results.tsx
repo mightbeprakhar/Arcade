@@ -5,7 +5,7 @@ import { GAMES } from '../games/meta';
 import { beatNashFor, clearAllResults, pointsFor, usePredictions, useResults } from '../state/results';
 import { ActionWord, Bubble, Narration, Panel } from '../components/comic';
 import { Sprite } from '../components/pixel/Sprite';
-import { C, face } from '../components/pixel/sprites';
+import { robot } from '../components/pixel/sprites';
 import { T } from '../components/motion';
 import { usePresenter, toggleFullscreen } from '../state/presenter';
 
@@ -44,7 +44,7 @@ export default function Results() {
   const { togglePresenter } = usePresenter();
   const played = GAMES.filter((g) => results[g.id]);
   const beat = played.filter((g) => beatNashFor(results[g.id])).length;
-  const nash = face(beat > played.length / 2 ? 'shocked' : 'smug', '#a39bc9', C.skin, '#2b2659', 'neat');
+  const nash = robot(played.length === 0 ? 'happy' : beat > played.length / 2 ? 'shocked' : 'smug');
 
   useEffect(() => {
     document.title = 'Humans vs Nash · Game Theory Arcade';
@@ -77,7 +77,10 @@ export default function Results() {
         </div>
         <Panel className="bg-[#241f52] p-6">
           <div className="flex items-end justify-between gap-4">
-            <Sprite {...nash} px={8} title="John Nash, pixelated" />
+            <div className="flex flex-col items-center gap-2">
+              <Sprite {...nash} px={7} title="NASH-BOT, the arcade’s scorekeeper" />
+              <span className="chip whitespace-nowrap text-gold">NASH-BOT</span>
+            </div>
             <Bubble side="bottom-right">
               {played.length === 0
                 ? 'Play a game and I’ll keep score.'

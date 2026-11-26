@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { GAMES } from '../games/meta';
 import { beatNashFor, clearAllResults, pointsFor, usePredictions, useResults } from '../state/results';
 import { usePresenter, toggleFullscreen } from '../state/presenter';
-import { ArcadeCabinet } from '../components/ArcadeCabinet';
+import { ArcadeCabinet } from './hub/ArcadeCabinet';
 import { BackgroundFx, NeonOpen, StringLights } from './hub/Decor';
 
 /** The sixth machine: a high-score board for Humans vs Nash. */
@@ -116,7 +116,6 @@ export default function Hub() {
                   <div key={g.id} className="w-[200px] shrink-0 snap-start lg:w-auto">
                     <ArcadeCabinet
                       only={g.id}
-                      size="sm"
                       badge={
                         r ? (
                           <span className="chip bg-teal text-black">
