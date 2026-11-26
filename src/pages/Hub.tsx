@@ -4,46 +4,99 @@ import { GAMES } from '../games/meta';
 import { beatNashFor, clearAllResults, pointsFor, usePredictions, useResults } from '../state/results';
 import { usePresenter, toggleFullscreen } from '../state/presenter';
 import { ArcadeCabinet } from './hub/ArcadeCabinet';
-import { BackgroundFx, NeonOpen, StringLights } from './hub/Decor';
+import { FitWidth } from '../components/FitWidth';
+import { BackgroundFx, DicePoster, NeonOpen, StringLights } from './hub/Decor';
 
-/** The sixth machine: a high-score board for Humans vs Nash. */
+/** The sixth machine: a claw machine whose glass case holds the Humans vs Nash high scores. */
 function HighScores({ played, total, rows }: { played: number; total: number; rows: { n: number; title: string; pts: number | null; beat: boolean }[] }) {
   return (
     <Link
       to="/results"
       aria-label={`Humans vs Nash: ${played} of ${GAMES.length} games played, ${total} points`}
-      className="group block select-none focus:outline-none focus-visible:outline focus-visible:outline-4 focus-visible:outline-gold"
+      className="group relative block select-none focus:outline-none focus-visible:outline focus-visible:outline-4 focus-visible:outline-gold"
     >
-      <div className="border-4 border-black bg-[#ff4fd8] px-2 py-2 text-center shadow-hard halftone">
-        <div className="min-h-[2.5em] font-pixel text-xs leading-tight text-[#1a0b3a]">HIGH SCORES</div>
-        <div className="mt-1 font-pixel text-[8px] text-[#1a0b3a]">HUMANS VS NASH</div>
+      <FitWidth grow>
+      <div className="relative leading-tight" style={{ width: 200, height: 452 }}>
+      <svg className="absolute left-0 top-0" width="200" height="400" viewBox="0 0 200 400" aria-hidden>
+        <ellipse cx="100" cy="396" rx="94" ry="6" fill="#0f0d22" opacity="0.45" />
+        {/* cabinet shell */}
+        <rect x="6" y="6" width="188" height="388" rx="16" fill="#0f0d22" />
+        <rect x="10" y="10" width="180" height="380" rx="13" fill="#a32a8a" />
+        {/* lit header */}
+        <rect x="16" y="16" width="168" height="44" rx="9" fill="#0f0d22" />
+        <rect x="19" y="19" width="162" height="38" rx="7" fill="#ff4fd8" />
+        {/* glass case */}
+        <rect x="16" y="66" width="168" height="196" rx="8" fill="#0f0d22" />
+        <rect x="20" y="70" width="160" height="188" rx="6" fill="#1a0b3a" />
+        <path d="M30 76 L60 76 L36 250 L24 250 Z" fill="#ffffff" opacity="0.07" />
+        {/* claw rail and claw */}
+        <rect x="24" y="74" width="152" height="4" fill="#6b62a8" />
+        <rect x="139" y="78" width="2" height="18" fill="#a39bc9" />
+        <path d="M132 96 L148 96 L146 100 L134 100 Z" fill="#a39bc9" />
+        <path d="M134 100 L128 112 L131 113 L137 102 Z M146 100 L152 112 L149 113 L143 102 Z" fill="#d4cdee" />
+        {/* control ledge with joystick and button */}
+        <path d="M10 266 L190 266 L190 292 L10 292 Z" fill="#0f0d22" />
+        <path d="M14 269 L186 269 L186 289 L14 289 Z" fill="#ffb3ef" />
+        <circle cx="46" cy="276" r="5" fill="#ef5a4b" stroke="#0f0d22" strokeWidth="2" />
+        <rect x="45" y="280" width="2" height="7" fill="#0f0d22" />
+        <ellipse cx="150" cy="279" rx="9" ry="5" fill="#ffcc4d" stroke="#0f0d22" strokeWidth="2" />
+        {/* prize chute and lower body */}
+        <rect x="26" y="304" width="52" height="44" rx="5" fill="#0f0d22" />
+        <rect x="30" y="308" width="44" height="36" rx="3" fill="#2b2659" />
+        <rect x="104" y="304" width="70" height="70" rx="6" fill="#0f0d22" opacity="0.35" />
+        <path d="M10 374 L190 374 L190 382 Q190 390 182 390 L18 390 Q10 390 10 382 Z" fill="#0f0d22" opacity="0.55" />
+      </svg>
+      <div className="absolute flex flex-col items-center justify-center text-center" style={{ left: 19, top: 19, width: 162, height: 38 }}>
+        <span className="font-pixel text-[#1a0b3a]" style={{ fontSize: 10 }}>
+          HIGH SCORES
+        </span>
+        <span className="mt-1 font-pixel text-[#1a0b3a]" style={{ fontSize: 6 }}>
+          HUMANS VS NASH
+        </span>
       </div>
-      <div className="border-4 border-t-0 border-black bg-[#1a0b3a] px-3 pb-3 pt-3 shadow-hard">
-        <div className="border-4 border-black bg-black p-2">
-          <ol className="space-y-1">
-            {rows.map((r) => (
-              <li key={r.n} className="flex items-baseline justify-between gap-2">
-                <span className="font-pixel text-[8px] text-ink-3">G{r.n}</span>
-                <span className={`font-mono text-2xl leading-none ${r.pts === null ? 'text-ink-3' : 'text-gold'}`}>{r.pts === null ? '---' : r.pts.toLocaleString('en-IN')}</span>
-                <span className="w-3 text-center text-gold">{r.beat ? '★' : ''}</span>
-              </li>
-            ))}
-          </ol>
-        </div>
-        <div className="mt-3 grid grid-cols-2 gap-2 text-center">
-          <div className="border-4 border-black bg-deep p-1">
-            <div className="font-pixel text-[8px] text-ink-3">PLAYED</div>
-            <div className="font-mono text-3xl leading-none">
-              {played}/{GAMES.length}
-            </div>
-          </div>
-          <div className="border-4 border-black bg-deep p-1">
-            <div className="font-pixel text-[8px] text-ink-3">POINTS</div>
-            <div className="font-mono text-3xl leading-none text-gold">{total.toLocaleString('en-IN')}</div>
-          </div>
-        </div>
-        <div className="mt-3 border-4 border-black bg-gold py-1 text-center font-pixel text-[8px] text-black group-hover:bg-[#ffd76e]">SEE RESULTS ▶</div>
+      {/* the "prizes" in the glass: one line per game */}
+      <ol className="absolute" style={{ left: 32, top: 122, width: 136 }}>
+        {rows.map((r) => (
+          <li key={r.n} className="flex items-baseline justify-between" style={{ height: 24 }}>
+            <span className="font-pixel text-ink-3" style={{ fontSize: 6 }}>
+              GAME {r.n}
+            </span>
+            <span className={`font-mono leading-none ${r.pts === null ? 'text-ink-3' : 'text-gold'}`} style={{ fontSize: 18 }}>
+              {r.pts === null ? '---' : r.pts.toLocaleString('en-IN')}
+              <span className="inline-block w-3 text-center text-gold" style={{ fontSize: 10 }}>
+                {r.beat ? '★' : ''}
+              </span>
+            </span>
+          </li>
+        ))}
+      </ol>
+      <div className="absolute flex flex-col items-center justify-center" style={{ left: 30, top: 308, width: 44, height: 36 }}>
+        <span className="font-pixel text-gold group-hover:text-cream" style={{ fontSize: 6 }}>
+          SEE
+        </span>
+        <span className="font-pixel text-gold group-hover:text-cream" style={{ fontSize: 6 }}>
+          RESULTS
+        </span>
+        <span className="font-pixel text-gold group-hover:text-cream" style={{ fontSize: 6 }}>
+          ▶
+        </span>
       </div>
+      <div className="absolute flex flex-col items-center text-center" style={{ left: 104, top: 308, width: 70 }}>
+        <span className="font-pixel text-ink-2" style={{ fontSize: 5 }}>
+          PLAYED
+        </span>
+        <span className="font-mono leading-none" style={{ fontSize: 18 }}>
+          {played}/{GAMES.length}
+        </span>
+        <span className="mt-1 font-pixel text-ink-2" style={{ fontSize: 5 }}>
+          POINTS
+        </span>
+        <span className="font-mono leading-none text-gold" style={{ fontSize: 18 }}>
+          {total.toLocaleString('en-IN')}
+        </span>
+      </div>
+      </div>
+      </FitWidth>
     </Link>
   );
 }
@@ -100,8 +153,14 @@ export default function Hub() {
         {/* The arcade floor: wall with string lights and a neon sign, six machines, a checkered floor. */}
         <section className="relative mt-16 overflow-hidden border-4 border-black bg-[#2b1d63] shadow-hard" aria-label="Choose a game">
           <StringLights />
-          <div className="absolute right-6 top-16 hidden sm:block">
+          <div className="absolute left-1/2 top-12 hidden -translate-x-1/2 sm:block">
             <NeonOpen />
+          </div>
+          <div className="absolute left-[30%] top-16 hidden rotate-[-8deg] lg:block">
+            <DicePoster />
+          </div>
+          <div className="absolute right-[24%] top-14 hidden rotate-[6deg] lg:block">
+            <DicePoster flip />
           </div>
           <div className="absolute inset-x-0 bottom-0 h-40 overflow-hidden" aria-hidden>
             <div className="checker-floor absolute -inset-x-1/4 top-0 h-[200%]" />
@@ -131,7 +190,7 @@ export default function Hub() {
               })}
               <div className="w-[200px] shrink-0 snap-start lg:w-auto">
                 <HighScores played={played} total={total} rows={rows} />
-                <p className="mt-3 text-center text-base text-ink-2">The closing screen</p>
+                <p className="mt-3 text-center text-base text-ink-2">Humans vs Nash: the closing screen</p>
               </div>
             </div>
           </div>

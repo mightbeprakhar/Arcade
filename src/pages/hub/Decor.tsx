@@ -78,3 +78,19 @@ export function NeonOpen() {
     </div>
   );
 }
+
+/** Tilted framed poster with two pixel dice, like the wall art in an arcade. */
+export function DicePoster({ flip = false }: { flip?: boolean }) {
+  const pips = flip ? [[2, 2], [6, 6], [2, 6], [6, 2]] : [[4, 4], [2, 2], [6, 6]];
+  return (
+    <svg className="pixel" width="72" height="72" viewBox="0 0 18 18" aria-hidden>
+      <rect x="0" y="0" width="18" height="18" fill="#0f0d22" />
+      <rect x="1" y="1" width="16" height="16" fill="#3a3378" />
+      <rect x="4" y="4" width="10" height="10" fill="#0f0d22" />
+      <rect x="5" y="5" width="8" height="8" fill="#fff4dc" />
+      {pips.map(([x, y], i) => (
+        <rect key={i} x={5 + x - 1} y={5 + y - 1} width="1.5" height="1.5" fill="#0f0d22" />
+      ))}
+    </svg>
+  );
+}

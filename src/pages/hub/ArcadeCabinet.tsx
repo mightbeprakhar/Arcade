@@ -152,16 +152,91 @@ const PAINT: Record<GameId, { body: string; side: string; trim: string; marquee:
   startup: { body: '#ff4fd8', side: '#a32a8a', trim: '#ffb3ef', marquee: '#ffcc4d' },
 };
 
-/** Bar stool in front of a cabinet. */
-function Stool({ seat }: { seat: string }) {
+/** Round-seat bar stool in front of a cabinet. */
+function Stool({ seat, side }: { seat: string; side: string }) {
   return (
-    <svg className="pixel mx-auto block" width="88" height="60" viewBox="0 0 16 11" aria-hidden>
-      <rect x="1" y="0" width="14" height="3" fill="#0f0d22" />
-      <rect x="2" y="0" width="12" height="2" fill={seat} />
-      <rect x="2" y="0" width="12" height="1" fill="#ffffff" opacity="0.25" />
-      <rect x="7" y="3" width="2" height="6" fill="#0f0d22" />
-      <rect x="4" y="9" width="8" height="2" fill="#0f0d22" />
-      <rect x="5" y="9" width="6" height="1" fill="#6b62a8" />
+    <svg className="mx-auto block w-[46%]" viewBox="0 0 80 64" aria-hidden>
+      <ellipse cx="40" cy="60" rx="22" ry="4" fill="#0f0d22" opacity="0.35" />
+      <rect x="37" y="16" width="6" height="40" fill="#0f0d22" />
+      <rect x="38" y="16" width="2" height="40" fill="#6b62a8" />
+      <ellipse cx="40" cy="58" rx="16" ry="4" fill="#0f0d22" />
+      <ellipse cx="40" cy="57" rx="14" ry="3" fill="#4b4278" />
+      <ellipse cx="40" cy="14" rx="30" ry="10" fill="#0f0d22" />
+      <ellipse cx="40" cy="12" rx="28" ry="8" fill={side} />
+      <ellipse cx="40" cy="10" rx="26" ry="6" fill={seat} />
+      <ellipse cx="33" cy="8" rx="10" ry="2" fill="#ffffff" opacity="0.35" />
+    </svg>
+  );
+}
+
+/*
+ * Cabinet silhouette, drawn in a 200 × 400 box, front view with the side panels showing:
+ * the panels curve in around the recessed screen and out again at the control deck.
+ * The HTML screen and marquee sit on top at matching percentage positions.
+ */
+const SIDE_PATH =
+  'M18 22 Q18 8 32 8 L168 8 Q182 8 182 22 L182 70 Q182 82 172 92 L170 196 Q192 204 194 222 L194 246 Q194 252 186 256 L180 392 L20 392 L14 256 Q6 252 6 246 L6 222 Q8 204 30 196 L28 92 Q18 82 18 70 Z';
+const SCREEN = { x: 44, y: 98, w: 112, h: 84 }; // 4:3 to match the 320 × 240 teaser
+
+function CabinetArt({ p }: { p: { body: string; side: string; trim: string; marquee: string } }) {
+  return (
+    <svg className="block h-auto w-full" viewBox="0 0 200 400" aria-hidden>
+      {/* floor shadow */}
+      <ellipse cx="100" cy="396" rx="92" ry="6" fill="#0f0d22" opacity="0.45" />
+      {/* side panels (outline + darker paint) */}
+      <path d={SIDE_PATH} fill="#0f0d22" />
+      <path d={SIDE_PATH} fill={p.side} transform="translate(100 200) scale(0.97 0.985) translate(-100 -200)" />
+      {/* front face: hood + marquee box */}
+      <rect x="26" y="14" width="148" height="58" rx="12" fill="#0f0d22" />
+      <rect x="30" y="18" width="140" height="50" rx="9" fill="#1a0b3a" />
+      <rect x="34" y="22" width="132" height="42" rx="7" fill={p.body} opacity="0.35" />
+      {/* screen hood: curved bezel */}
+      <path d="M34 80 Q34 76 38 76 L162 76 Q166 76 166 80 L164 196 L36 196 Z" fill="#0f0d22" />
+      <path d="M38 82 L162 82 L160 192 L40 192 Z" fill={p.body} />
+      <rect x={SCREEN.x - 6} y={SCREEN.y - 8} width={SCREEN.w + 12} height={SCREEN.h + 14} rx="8" fill="#0f0d22" />
+      <rect x={SCREEN.x - 3} y={SCREEN.y - 5} width={SCREEN.w + 6} height={SCREEN.h + 8} rx="6" fill="#2b2659" />
+      {/* control deck: sloped top face, then a front lip */}
+      <path d="M22 200 L178 200 L192 226 L8 226 Z" fill="#0f0d22" />
+      <path d="M26 203 L174 203 L186 223 L14 223 Z" fill={p.trim} />
+      <path d="M8 226 L192 226 L192 244 Q192 248 188 248 L12 248 Q8 248 8 244 Z" fill="#0f0d22" />
+      <path d="M12 229 L188 229 L188 243 L12 243 Z" fill={p.side} />
+      {/* joystick */}
+      <ellipse cx="52" cy="216" rx="10" ry="3.5" fill="#0f0d22" />
+      <rect x="50" y="203" width="4" height="13" fill="#0f0d22" />
+      <circle cx="52" cy="203" r="6" fill="#0f0d22" />
+      <circle cx="52" cy="203" r="4.5" fill="#ef5a4b" />
+      <circle cx="50.5" cy="201.5" r="1.5" fill="#fff4dc" />
+      {/* buttons: cooperate (teal), defect (red), start (gold) */}
+      {[
+        [104, '#47c9a8'],
+        [124, '#ef5a4b'],
+        [144, '#ffcc4d'],
+      ].map(([x, c]) => (
+        <g key={x as number}>
+          <ellipse cx={x as number} cy="215" rx="7" ry="4" fill="#0f0d22" />
+          <ellipse cx={x as number} cy="213.5" rx="5.5" ry="3" fill={c as string} />
+          <ellipse cx={(x as number) - 1.5} cy="212.5" rx="2" ry="0.8" fill="#ffffff" opacity="0.5" />
+        </g>
+      ))}
+      {/* lower body */}
+      <path d="M22 250 L178 250 L176 388 L24 388 Z" fill="#0f0d22" />
+      <path d="M26 252 L174 252 L172 384 L28 384 Z" fill={p.body} />
+      <path d="M26 252 L44 252 L44 384 L28 384 Z" fill="#ffffff" opacity="0.08" />
+      {/* coin door */}
+      <rect x="66" y="270" width="68" height="66" rx="6" fill="#0f0d22" />
+      <rect x="70" y="274" width="60" height="58" rx="4" fill="#1a1838" />
+      {[84, 106].map((x) => (
+        <g key={x}>
+          <rect x={x} y="282" width="10" height="16" rx="2" fill="#0f0d22" />
+          <rect x={x + 1.5} y="283.5" width="7" height="13" rx="1.5" fill="#ef5a4b" />
+          <rect x={x + 4} y="285" width="2" height="10" fill="#0f0d22" />
+        </g>
+      ))}
+      {/* speaker vents and kick plate */}
+      {[348, 354, 360].map((y) => (
+        <rect key={y} x="54" y={y} width="92" height="2.5" rx="1" fill="#0f0d22" opacity="0.45" />
+      ))}
+      <path d="M24 370 L176 370 L176 388 L24 388 Z" fill="#0f0d22" opacity="0.55" />
     </svg>
   );
 }
@@ -203,89 +278,58 @@ export function ArcadeCabinet({ only, badge }: { only?: GameId; badge?: ReactNod
     startup: <MarketFrame key={`s${cycle}`} animate={animate} />,
   } as const;
   const paint = PAINT[single?.id ?? 'ultimatum'];
+  const title = single ? single.title.toUpperCase() : 'GAME THEORY ARCADE';
 
   return (
     <div className="relative mx-auto w-full select-none" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
-      {badge && <div className="absolute -right-2 top-8 z-20">{badge}</div>}
-      <div className="relative">
-        {/* hood: dark cap, then the backlit marquee */}
-        <div className="h-3 border-4 border-b-0 border-black" style={{ background: paint.side }} />
-        <div className="border-x-4 border-black px-2 pb-2" style={{ background: paint.side }}>
-          <div className="border-4 border-black px-1 py-2 text-center" style={{ background: '#1a0b3a', boxShadow: `inset 0 0 10px ${paint.body}` }}>
-            <div className="min-h-[2.5em] font-pixel text-xs leading-tight" style={{ color: paint.marquee, textShadow: `0 0 6px ${paint.body}, 2px 2px 0 #0f0d22` }}>
-              {single ? single.title.toUpperCase() : 'GAME THEORY ARCADE'}
-            </div>
+      {badge && <div className="absolute -right-1 top-[19%] z-20">{badge}</div>}
+      {/* The machine is composed at a fixed 200 × 452 px and scaled as one piece, so text never drifts off the art. */}
+      <FitWidth grow>
+        <div className="relative leading-tight" style={{ width: 200, height: 452 }}>
+          <div className="absolute left-0 top-0" style={{ width: 200, height: 400 }}>
+            <CabinetArt p={paint} />
           </div>
-        </div>
-        {/* screen section: front face with side panels as thick borders, recessed bezel, glass glare */}
-        <div className="border-x-[10px] border-black" style={{ borderLeftColor: paint.side, borderRightColor: paint.side, outline: '4px solid #0f0d22', background: paint.body }}>
-          <div className="px-2 pb-3 pt-2">
-            <div className="h-1" style={{ background: paint.trim, opacity: 0.6 }} />
-            <div className="mt-2 border-4 border-black bg-black p-1" style={{ boxShadow: `0 0 14px ${paint.trim}66, inset 0 0 0 2px #2b2659` }}>
-              <Link
-                to={to}
-                aria-label={label}
-                title={label}
-                className="relative block overflow-hidden bg-[#0b0a1c] focus:outline-none focus-visible:outline focus-visible:outline-4 focus-visible:outline-gold"
-              >
-                <FitWidth>
-                  <div className="relative" style={{ width: 320, height: 240 }}>
-                    {game ? byId[game.id] : <StartFrame key={`p${cycle}`} animate={animate} />}
-                  </div>
-                </FitWidth>
-                {/* glass glare */}
-                <span className="pointer-events-none absolute -left-1/4 -top-1/2 h-[200%] w-1/4 rotate-[25deg] bg-white opacity-[0.07]" aria-hidden />
-                {paused && !reduced && <span className="chip absolute right-1 top-1 z-10 text-ink-3">PAUSED</span>}
-              </Link>
-            </div>
+          {/* lit marquee text */}
+          <div className="absolute flex items-center justify-center px-1 text-center" style={{ left: 34, top: 22, width: 132, height: 42 }}>
+            <span className="font-pixel leading-tight" style={{ fontSize: title.length > 14 ? 8 : 9, color: paint.marquee, textShadow: `0 0 6px ${paint.body}, 1px 1px 0 #0f0d22` }}>
+              {title}
+            </span>
           </div>
-        </div>
-        {/* control deck juts out past the sides: lighter top face, darker front lip */}
-        <div className="relative z-10 -mx-2">
-          <div className="flex items-center justify-between gap-2 border-4 border-black px-3 py-2" style={{ background: paint.trim }}>
-            <svg className="pixel" width="24" height="28" viewBox="0 0 16 18" aria-label="Joystick" role="img">
-              <rect x="2" y="14" width="12" height="4" fill="#0f0d22" />
-              <rect x="7" y="6" width="2" height="8" fill="#0f0d22" />
-              <rect x="5" y="1" width="6" height="6" fill="#0f0d22" />
-              <rect x="6" y="2" width="4" height="4" fill="#ef5a4b" />
-              <rect x="6" y="2" width="2" height="1" fill="#fff4dc" />
-            </svg>
-            <div className="flex items-center gap-2" aria-label="Buttons: cooperate and defect" role="img">
-              <span className="block h-5 w-5 rounded-full border-2 border-black bg-teal" style={{ boxShadow: 'inset -2px -2px 0 rgba(0,0,0,0.3)' }} title="COOPERATE" />
-              <span className="block h-5 w-5 rounded-full border-2 border-black bg-red" style={{ boxShadow: 'inset -2px -2px 0 rgba(0,0,0,0.3)' }} title="DEFECT" />
-              <span className="block h-3 w-3 rounded-full border-2 border-black bg-gold" />
-            </div>
+          {/* coin door label */}
+          <div className="absolute whitespace-nowrap text-center text-gold" style={{ left: 66, top: 304, width: 68 }}>
+            <span className="font-pixel" style={{ fontSize: 5 }}>
+              INSERT{' '}
+            </span>
+            <span className="font-mono leading-none" style={{ fontSize: 14 }}>
+              ₹10
+            </span>
           </div>
-          <div className="h-3 border-4 border-t-0 border-black" style={{ background: paint.side }} />
-        </div>
-        {/* lower cabinet: coin door with two lit slots, vents, kick plate */}
-        <div className="border-x-[10px]" style={{ borderLeftColor: paint.side, borderRightColor: paint.side, outline: '4px solid #0f0d22', background: paint.body }}>
-          <div className="flex flex-col items-center gap-2 px-3 py-3">
-            <div className="w-full border-4 border-black bg-[#1a1838] px-2 py-2">
-              <div className="flex justify-center gap-3">
-                {[0, 1].map((i) => (
-                  <span key={i} className="flex h-6 w-5 items-center justify-center border-2 border-black bg-red">
-                    <span className="block h-4 w-1 bg-black" />
-                  </span>
-                ))}
-              </div>
-              <div className="mt-1 text-center text-gold">
-                <span className="font-pixel text-[8px]">INSERT </span>
-                <span className="font-mono text-lg leading-none">₹10</span>
+          {/* the screen */}
+          <Link
+            to={to}
+            aria-label={label}
+            title={label}
+            className="absolute block overflow-hidden rounded-md bg-[#0b0a1c] focus:outline-none focus-visible:outline focus-visible:outline-4 focus-visible:outline-gold"
+            style={{ left: SCREEN.x, top: SCREEN.y, width: SCREEN.w, height: SCREEN.h, boxShadow: `0 0 14px ${paint.trim}55` }}
+          >
+            <div className="origin-top-left" style={{ width: 320, height: 240, transform: `scale(${SCREEN.w / 320})` }}>
+              <div className="relative" style={{ width: 320, height: 240 }}>
+                {game ? byId[game.id] : <StartFrame key={`p${cycle}`} animate={animate} />}
               </div>
             </div>
-            <div className="flex w-full flex-col gap-1" aria-hidden>
-              {[0, 1, 2].map((i) => (
-                <span key={i} className="block h-1 w-full bg-black opacity-40" />
-              ))}
-            </div>
+            <span className="pointer-events-none absolute -left-1/4 -top-1/2 h-[200%] w-1/4 rotate-[25deg] bg-white opacity-[0.08]" aria-hidden />
+            {paused && !reduced && (
+              <span className="absolute right-1 top-1 z-10 border border-black bg-deep px-1 font-pixel text-ink-3" style={{ fontSize: 5 }}>
+                PAUSED
+              </span>
+            )}
+          </Link>
+          {/* stool */}
+          <div className="absolute left-0" style={{ top: 392, width: 200 }}>
+            <Stool seat={paint.trim} side={paint.side} />
           </div>
-          <div className="h-4 bg-black opacity-60" />
         </div>
-      </div>
-      <div className="mt-2">
-        <Stool seat={paint.trim} />
-      </div>
+      </FitWidth>
     </div>
   );
 }
