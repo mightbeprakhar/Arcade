@@ -25,8 +25,14 @@ export type GameResult = {
 type Store = Partial<Record<GameId, GameResult>>;
 
 const KEY = 'gt-arcade-results-v1';
-let state: Store = typeof window === 'undefined' ? {} : readJSON<Store>(KEY, {});
+// Results live in sessionStorage: a refresh keeps them, a new tab or window is a new class session.
+let state: Store = typeof window === 'undefined' ? {} : readJSON<Store>(KEY, {}, 'session');
 const listeners = new Set<() => void>();
+// Earlier versions kept results in localStorage; drop those so old classes don't leak into new tabs.
+if (typeof window !== 'undefined') {
+  removeKey(KEY);
+  removeKey('gt-arcade-predictions-v1');
+}
 
 function emit() {
   listeners.forEach((l) => l());
@@ -34,18 +40,18 @@ function emit() {
 
 export function recordResult(id: GameId, r: Omit<GameResult, 'at'>) {
   state = { ...state, [id]: { ...r, at: Date.now() } };
-  writeJSON(KEY, state);
+  writeJSON(KEY, state, 'session');
   emit();
 }
 
 /* ---------- Predictions (the vote before each Solve stage) ---------- */
 type Predictions = Partial<Record<GameId, boolean>>;
 const PKEY = 'gt-arcade-predictions-v1';
-let predictions: Predictions = typeof window === 'undefined' ? {} : readJSON<Predictions>(PKEY, {});
+let predictions: Predictions = typeof window === 'undefined' ? {} : readJSON<Predictions>(PKEY, {}, 'session');
 
 export function recordPrediction(id: GameId, correct: boolean) {
   predictions = { ...predictions, [id]: correct };
-  writeJSON(PKEY, predictions);
+  writeJSON(PKEY, predictions, 'session');
   emit();
 }
 
@@ -68,15 +74,15 @@ export function clearResult(id: GameId) {
   const next = { ...state };
   delete next[id];
   state = next;
-  writeJSON(KEY, state);
+  writeJSON(KEY, state, 'session');
   emit();
 }
 
 export function clearAllResults() {
   state = {};
   predictions = {};
-  removeKey(KEY);
-  removeKey(PKEY);
+  removeKey(KEY, 'session');
+  removeKey(PKEY, 'session');
   emit();
 }
 

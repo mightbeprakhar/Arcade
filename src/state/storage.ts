@@ -1,7 +1,14 @@
-/** localStorage can throw (private mode, blocked storage) or come back empty. Never let it break the app. */
-export function readJSON<T>(key: string, fallback: T): T {
+/**
+ * Web storage can throw (private mode, blocked storage) or come back empty. Never let it break the app.
+ * 'local' persists across tabs and restarts (used for the Presenter Mode preference);
+ * 'session' lives only in this tab: a refresh keeps it, a new tab or window starts fresh (used for class results).
+ */
+export type Area = 'local' | 'session';
+const store = (area: Area) => (area === 'session' ? window.sessionStorage : window.localStorage);
+
+export function readJSON<T>(key: string, fallback: T, area: Area = 'local'): T {
   try {
-    const raw = window.localStorage.getItem(key);
+    const raw = store(area).getItem(key);
     if (!raw) return fallback;
     return JSON.parse(raw) as T;
   } catch {
@@ -9,17 +16,17 @@ export function readJSON<T>(key: string, fallback: T): T {
   }
 }
 
-export function writeJSON(key: string, value: unknown) {
+export function writeJSON(key: string, value: unknown, area: Area = 'local') {
   try {
-    window.localStorage.setItem(key, JSON.stringify(value));
+    store(area).setItem(key, JSON.stringify(value));
   } catch {
     /* ignore */
   }
 }
 
-export function removeKey(key: string) {
+export function removeKey(key: string, area: Area = 'local') {
   try {
-    window.localStorage.removeItem(key);
+    store(area).removeItem(key);
   } catch {
     /* ignore */
   }

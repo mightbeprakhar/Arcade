@@ -19,7 +19,9 @@ Every game runs the same loop: **Story → Play → Solve → Simulate → Debri
 
 ## Presenter controls
 
-`→` / `Space` next step · `←` back · `R` reset game · `F` fullscreen · `P` Presenter Mode (larger text for projectors). Every control is also an on-screen button.
+`→` / `Space` / `Page Down` next step · `←` / `Page Up` back · `R` reset game · `F` fullscreen · `P` Presenter Mode (larger text for projectors). Page Up / Page Down make a presentation clicker work. Inside a game the bottom bar has **Back** and **Reset**; everything else is on the keyboard.
+
+Results are kept per browser tab: a refresh keeps them, a new tab or window starts a fresh class session. **New session** on the home page clears them.
 
 ## How it's built
 

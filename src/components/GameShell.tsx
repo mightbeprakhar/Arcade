@@ -86,7 +86,12 @@ export function GameShell({
           e.preventDefault();
           next();
           break;
+        case 'PageDown': // presentation clickers
+          e.preventDefault();
+          next();
+          break;
         case 'ArrowLeft':
+        case 'PageUp':
           e.preventDefault();
           prev();
           break;
@@ -133,7 +138,7 @@ export function GameShell({
             </motion.div>
           </main>
         </div>
-        <PresenterBar onNext={next} onPrev={prev} onReset={reset} />
+        <PresenterBar onPrev={prev} onReset={reset} />
       </BuildProvider>
     </StageContext.Provider>
   );

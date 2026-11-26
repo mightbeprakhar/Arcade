@@ -34,21 +34,25 @@ Points and badges show on the hub and on Humans vs Nash and update after every r
 
 The last screen of the talk is **Humans vs Nash** (`/results`): every game the class played, the class's payoff, the equilibrium payoff and the gap.
 
-## Keyboard
+## Keyboard and clicker
 
 | Key | Action |
 |---|---|
-| `→` or `Space` | Next step. Reveals the next line or panel first; when there is none, goes to the next stage |
-| `←` | Back |
+| `→`, `Space` or `Page Down` | Next step. Reveals the next line or panel first; when there is none, goes to the next stage |
+| `←` or `Page Up` | Back |
 | `R` | Reset the current game |
 | `F` | Fullscreen |
 | `P` | Presenter Mode: bigger text for the projector |
 
-Everything is also a button on screen, so a clicker or a mouse works too.
+Most presentation clickers send Page Down / Page Up, so a clicker works as next / back. Inside a game the bottom bar only has **◀ Back** and **Reset**; next, fullscreen and Presenter Mode are on the keyboard. The gold buttons on each screen (lock in, next round, solve it) also move things along with a mouse.
+
+## Results and sessions
+
+Results, predictions and points are kept for the current browser tab: refreshing keeps them, but a new tab or window starts a fresh session. To start over in the same tab, press **↺ New session** on the home page (it asks to confirm).
 
 ## Suggested running order and timing (about 40 minutes)
 
-1. Hub, 1 min: show the game cards and the comic preview.
+1. Hub, 1 min: show the arcade cabinet's attract mode and the game cards.
 2. **Chicken**, 10 min: the flagship game. Do every stage.
 3. Ultimatum, 7 min: round A (class proposes), then the tree in Solve.
 4. Advertising, 8 min: play 3–4 weeks live, then autoplay the rest; show the tournament at 0% and 5% noise.
@@ -63,7 +67,7 @@ If time is short, Chicken is the game to do completely.
 - `npm run build` then `npm run preview` on the presenting laptop as an offline backup. The app needs no internet once loaded.
 - Open the live site once beforehand so fonts and code are cached.
 - Turn on Presenter Mode (`P`) and Fullscreen (`F`).
-- Clear old results on the Humans vs Nash screen before the class starts.
+- Press **↺ New session** on the home page before the class starts (or open the site in a new tab).
 - Decide who counts hands on the left and right sides of the room (Chicken needs both).
 
 ## Where the maths lives

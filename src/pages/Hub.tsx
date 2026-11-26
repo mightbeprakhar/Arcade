@@ -1,11 +1,11 @@
 import { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { GAMES } from '../games/meta';
-import { beatNashFor, pointsFor, usePredictions, useResults, type GameId } from '../state/results';
+import { beatNashFor, clearAllResults, pointsFor, usePredictions, useResults, type GameId } from '../state/results';
 import { usePresenter, toggleFullscreen } from '../state/presenter';
 import { Sprite } from '../components/pixel/Sprite';
-import { C, chickenThumb, face, icons } from '../components/pixel/sprites';
-import { Bubble } from '../components/comic';
+import { chickenThumb, icons } from '../components/pixel/sprites';
+import { ArcadeCabinet } from '../components/ArcadeCabinet';
 
 const THUMBS: Record<GameId, { map: string[]; pal: Record<string, string> }> = {
   ultimatum: icons.coins,
@@ -45,8 +45,6 @@ export default function Hub() {
     return () => window.removeEventListener('keydown', onKey);
   }, [togglePresenter]);
 
-  const a = face('grim', C.brown, C.skin, C.blueD, 'short');
-  const b = face('smug', C.K, C.skin, C.redD, 'spiky');
 
   return (
     <div className="relative min-h-screen">
@@ -64,30 +62,21 @@ export default function Hub() {
               <Link to={GAMES[0].path} className="btn-primary">
                 PRESS START ▶
               </Link>
+              <button
+                className="btn-ghost"
+                onClick={() => {
+                  if (window.confirm('Start a new session? This clears every game result, prediction and point in this tab.')) clearAllResults();
+                }}
+              >
+                ↺ NEW SESSION
+              </button>
               <button className="btn-text" onClick={toggleFullscreen}>
                 FULLSCREEN [F]
               </button>
             </div>
           </div>
 
-          {/* Product moment: a pixel comic panel straight out of game 2. */}
-          <Link to="/chicken" className="group block focus:outline-none focus-visible:outline focus-visible:outline-4 focus-visible:outline-gold" aria-label="Preview of game 2, Game of Chicken">
-            <div className="relative border-4 border-black bg-[#241f52] shadow-hard halftone-light">
-              <div className="grid grid-cols-2">
-                <div className="flex flex-col items-start gap-6 border-r-4 border-black p-6">
-                  <Bubble side="bottom-left">I’m not swerving.</Bubble>
-                  <Sprite {...a} px={7} title="Driver A, determined" />
-                </div>
-                <div className="flex flex-col items-end gap-6 p-6">
-                  <Bubble side="bottom-right">Neither am I.</Bubble>
-                  <Sprite {...b} px={7} flip title="Driver B, smug" />
-                </div>
-              </div>
-              <div className="border-t-4 border-black bg-gold px-4 py-2 text-lg text-black">
-                <span className="font-pixel text-xs">GAME 2 · CHICKEN</span> · Who blinks first? The class decides. ▶
-              </div>
-            </div>
-          </Link>
+          <ArcadeCabinet />
         </header>
 
         <section className="mt-16" aria-label="Choose a game">
@@ -147,10 +136,10 @@ export default function Hub() {
 
         <footer className="mt-12 flex flex-wrap gap-x-6 gap-y-2 text-lg text-ink-3">
           <span>
-            <span className="kbd">→</span> / <span className="kbd">SPACE</span> next step
+            <span className="kbd">→</span> / <span className="kbd">SPACE</span> / <span className="kbd">PGDN</span> next step
           </span>
           <span>
-            <span className="kbd">←</span> back
+            <span className="kbd">←</span> / <span className="kbd">PGUP</span> back
           </span>
           <span>
             <span className="kbd">R</span> reset game
