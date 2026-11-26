@@ -144,7 +144,7 @@ function StartFrame({ animate }: { animate: boolean }) {
 }
 
 /** Cabinet paint per game: body, side panels (darker), trim (lighter). */
-const PAINT: Record<GameId, { body: string; side: string; trim: string; marquee: string }> = {
+export const PAINT: Record<GameId, { body: string; side: string; trim: string; marquee: string }> = {
   ultimatum: { body: '#c04dff', side: '#7a2aa8', trim: '#e3a6ff', marquee: '#ffcc4d' },
   chicken: { body: '#ef5a4b', side: '#9c2f25', trim: '#ffa99f', marquee: '#fff4dc' },
   advertising: { body: '#5aa7ff', side: '#2f62a8', trim: '#b5d8ff', marquee: '#ffcc4d' },
@@ -170,36 +170,40 @@ function Stool({ seat, side }: { seat: string; side: string }) {
 }
 
 /*
- * Cabinet silhouette, drawn in a 200 × 400 box, front view with the side panels showing:
- * the panels curve in around the recessed screen and out again at the control deck.
- * The HTML screen and marquee sit on top at matching percentage positions.
+ * Cabinet front, drawn in a 200 × 400 box. Like a real upright, two straight side panels
+ * (x 6–18 and 182–194, full height) frame the front parts, so the 3D side faces on the arcade
+ * floor (see Cabinet3D) attach exactly along those straight outer edges.
+ * The HTML screen and marquee sit on top at matching positions.
  */
-const SIDE_PATH =
-  'M18 22 Q18 8 32 8 L168 8 Q182 8 182 22 L182 70 Q182 82 172 92 L170 196 Q192 204 194 222 L194 246 Q194 252 186 256 L180 392 L20 392 L14 256 Q6 252 6 246 L6 222 Q8 204 30 196 L28 92 Q18 82 18 70 Z';
 const SCREEN = { x: 44, y: 98, w: 112, h: 84 }; // 4:3 to match the 320 × 240 teaser
 
 function CabinetArt({ p }: { p: { body: string; side: string; trim: string; marquee: string } }) {
   return (
     <svg className="block h-auto w-full" viewBox="0 0 200 400" aria-hidden>
       {/* floor shadow */}
-      <ellipse cx="100" cy="396" rx="92" ry="6" fill="#0f0d22" opacity="0.45" />
-      {/* side panels (outline + darker paint) */}
-      <path d={SIDE_PATH} fill="#0f0d22" />
-      <path d={SIDE_PATH} fill={p.side} transform="translate(100 200) scale(0.97 0.985) translate(-100 -200)" />
-      {/* front face: hood + marquee box */}
-      <rect x="26" y="14" width="148" height="58" rx="12" fill="#0f0d22" />
-      <rect x="30" y="18" width="140" height="50" rx="9" fill="#1a0b3a" />
-      <rect x="34" y="22" width="132" height="42" rx="7" fill={p.body} opacity="0.35" />
-      {/* screen hood: curved bezel */}
-      <path d="M34 80 Q34 76 38 76 L162 76 Q166 76 166 80 L164 196 L36 196 Z" fill="#0f0d22" />
-      <path d="M38 82 L162 82 L160 192 L40 192 Z" fill={p.body} />
+      <ellipse cx="100" cy="396" rx="96" ry="6" fill="#0f0d22" opacity="0.45" />
+      {/* the whole box in outline, then the two side panels (front edges) */}
+      <rect x="6" y="8" width="188" height="384" rx="4" fill="#0f0d22" />
+      <rect x="8" y="10" width="9" height="380" rx="2" fill={p.side} />
+      <rect x="183" y="10" width="9" height="380" rx="2" fill={p.side} />
+      <rect x="8" y="10" width="2.5" height="380" fill={p.trim} opacity="0.7" />
+      <rect x="189.5" y="10" width="2.5" height="380" fill={p.trim} opacity="0.7" />
+      {/* marquee box */}
+      <rect x="20" y="12" width="160" height="62" rx="6" fill="#0f0d22" />
+      <rect x="24" y="16" width="152" height="54" rx="4" fill="#1a0b3a" />
+      <rect x="30" y="20" width="140" height="46" rx="4" fill={p.body} opacity="0.35" />
+      {/* screen surround: a sloped hood that narrows toward the glass */}
+      <rect x="20" y="76" width="160" height="122" fill="#0f0d22" />
+      <path d="M22 78 L178 78 L166 92 L34 92 Z" fill={p.side} />
+      <rect x="22" y="78" width="156" height="118" fill={p.body} opacity="0.9" />
+      <path d="M22 78 L178 78 L170 88 L30 88 Z" fill="#0f0d22" opacity="0.35" />
       <rect x={SCREEN.x - 6} y={SCREEN.y - 8} width={SCREEN.w + 12} height={SCREEN.h + 14} rx="8" fill="#0f0d22" />
       <rect x={SCREEN.x - 3} y={SCREEN.y - 5} width={SCREEN.w + 6} height={SCREEN.h + 8} rx="6" fill="#2b2659" />
-      {/* control deck: sloped top face, then a front lip */}
-      <path d="M22 200 L178 200 L192 226 L8 226 Z" fill="#0f0d22" />
-      <path d="M26 203 L174 203 L186 223 L14 223 Z" fill={p.trim} />
-      <path d="M8 226 L192 226 L192 244 Q192 248 188 248 L12 248 Q8 248 8 244 Z" fill="#0f0d22" />
-      <path d="M12 229 L188 229 L188 243 L12 243 Z" fill={p.side} />
+      {/* control deck: sloped top face, then a front lip, between the side panels */}
+      <path d="M22 200 L178 200 L182 226 L18 226 Z" fill="#0f0d22" />
+      <path d="M25 203 L175 203 L178 223 L22 223 Z" fill={p.trim} />
+      <rect x="18" y="226" width="164" height="22" fill="#0f0d22" />
+      <rect x="20" y="229" width="160" height="15" fill={p.side} />
       {/* joystick */}
       <ellipse cx="52" cy="216" rx="10" ry="3.5" fill="#0f0d22" />
       <rect x="50" y="203" width="4" height="13" fill="#0f0d22" />
@@ -219,9 +223,9 @@ function CabinetArt({ p }: { p: { body: string; side: string; trim: string; marq
         </g>
       ))}
       {/* lower body */}
-      <path d="M22 250 L178 250 L176 388 L24 388 Z" fill="#0f0d22" />
-      <path d="M26 252 L174 252 L172 384 L28 384 Z" fill={p.body} />
-      <path d="M26 252 L44 252 L44 384 L28 384 Z" fill="#ffffff" opacity="0.08" />
+      <rect x="20" y="250" width="160" height="140" fill="#0f0d22" />
+      <rect x="22" y="252" width="156" height="134" fill={p.body} />
+      <rect x="22" y="252" width="16" height="134" fill="#ffffff" opacity="0.08" />
       {/* coin door */}
       <rect x="66" y="270" width="68" height="66" rx="6" fill="#0f0d22" />
       <rect x="70" y="274" width="60" height="58" rx="4" fill="#1a1838" />
@@ -236,7 +240,7 @@ function CabinetArt({ p }: { p: { body: string; side: string; trim: string; marq
       {[348, 354, 360].map((y) => (
         <rect key={y} x="54" y={y} width="92" height="2.5" rx="1" fill="#0f0d22" opacity="0.45" />
       ))}
-      <path d="M24 370 L176 370 L176 388 L24 388 Z" fill="#0f0d22" opacity="0.55" />
+      <rect x="22" y="370" width="156" height="16" fill="#0f0d22" opacity="0.55" />
     </svg>
   );
 }

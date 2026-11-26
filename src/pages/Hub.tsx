@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { GAMES } from '../games/meta';
 import { beatNashFor, clearAllResults, pointsFor, usePredictions, useResults } from '../state/results';
 import { usePresenter, toggleFullscreen } from '../state/presenter';
-import { ArcadeCabinet } from './hub/ArcadeCabinet';
+import { ArcadeCabinet, PAINT } from './hub/ArcadeCabinet';
+import { Cabinet3D } from './hub/Cabinet3D';
 import { FitWidth } from '../components/FitWidth';
 import { BackgroundFx, DicePoster, NeonOpen, StringLights } from './hub/Decor';
 
@@ -165,14 +166,15 @@ export default function Hub() {
           <div className="absolute inset-x-0 bottom-0 h-40 overflow-hidden" aria-hidden>
             <div className="checker-floor absolute -inset-x-1/4 top-0 h-[200%]" />
           </div>
-          <div className="relative px-4 pb-8 pt-24 sm:px-6">
+          <div className="relative px-4 pb-8 pt-24 sm:px-6 lg:px-12">
             <h2 className="mb-6 text-sm text-ink-2">CHOOSE A GAME</h2>
-            <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 lg:grid lg:grid-cols-6 lg:overflow-visible lg:pb-0">
-              {GAMES.map((g) => {
+            <div className="arcade-row flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 lg:grid lg:grid-cols-6 lg:overflow-visible lg:pb-0">
+              {GAMES.map((g, i) => {
                 const r = results[g.id];
                 const pts = pointsFor(g.id, results, preds);
                 return (
                   <div key={g.id} className="w-[200px] shrink-0 snap-start lg:w-auto">
+                    <Cabinet3D k={i - GAMES.length / 2} paint={PAINT[g.id]}>
                     <ArcadeCabinet
                       only={g.id}
                       badge={
@@ -184,12 +186,15 @@ export default function Hub() {
                         ) : null
                       }
                     />
+                    </Cabinet3D>
                     <p className="mt-3 text-center text-base text-ink-2">{g.concept}</p>
                   </div>
                 );
               })}
               <div className="w-[200px] shrink-0 snap-start lg:w-auto">
-                <HighScores played={played} total={total} rows={rows} />
+                <Cabinet3D k={GAMES.length / 2} paint={{ side: '#a32a8a', trim: '#ffb3ef', body: '#ff4fd8' }}>
+                  <HighScores played={played} total={total} rows={rows} />
+                </Cabinet3D>
                 <p className="mt-3 text-center text-base text-ink-2">Humans vs Nash: the closing screen</p>
               </div>
             </div>

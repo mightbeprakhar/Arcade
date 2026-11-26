@@ -115,3 +115,40 @@ input[type='range'] { @apply w-full cursor-pointer; accent-color: #ffcc4d; heigh
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
+
+/* ---------- 3D arcade floor (home page). Only at lg+: smaller screens scroll a flat row. ---------- */
+@media (min-width: 1024px) {
+  .arcade-row {
+    perspective: var(--arcade-persp, 1100px);
+    perspective-origin: 50% 30%;
+    transform-style: preserve-3d;
+  }
+  .arcade-row > div { transform-style: preserve-3d; }
+  .cab3d {
+    position: relative;
+    transform-style: preserve-3d;
+    transform: translateZ(var(--tz, 0px)) rotateY(var(--ry, 0deg));
+    transition: transform 400ms ease-out;
+  }
+  .cab3d-side {
+    position: absolute;
+    top: 0;
+    display: block;
+  }
+  /* folded back 90° from each front edge */
+  .cab3d-side-left { left: 0; transform-origin: left center; transform: rotateY(90deg); }
+  .cab3d-side-right { right: 0; transform-origin: right center; transform: rotateY(-90deg); }
+  .cab3d-front { position: relative; transform: translateZ(0.5px); }
+  .cab3d:hover { transform: translateZ(calc(var(--tz, 0px) + 18px)) rotateY(var(--ry, 0deg)); }
+}
+@media (max-width: 1023.98px) {
+  .cab3d-side { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arcade-row > div { transform-style: preserve-3d; }
+  .cab3d { transition: none; }
+}
+/* A few fairy-light bulbs twinkle. */
+@keyframes bulb-twinkle { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+.bulb-twinkle { animation: bulb-twinkle 2.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .bulb-twinkle { animation: none; } }

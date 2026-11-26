@@ -52,19 +52,58 @@ export function BackgroundFx() {
   );
 }
 
-/** A sagging cable of coloured pixel bulbs across the top of the wall. */
+/*
+ * Fairy lights: strands that hang in loops from hooks along the top of the wall,
+ * warm bulbs with a soft glow, a few twinkling (not under reduced motion; see .bulb-twinkle).
+ * Drawn in a 1200 × 130 box and cropped at the sides on narrow screens, so bulbs stay round.
+ */
+type Swag = { x1: number; x2: number; y1: number; y2: number; sag: number };
+const SWAGS: Swag[] = [
+  { x1: -20, x2: 210, y1: 6, y2: 22, sag: 70 },
+  { x1: 210, x2: 430, y1: 22, y2: 8, sag: 62 },
+  { x1: 770, x2: 990, y1: 8, y2: 22, sag: 62 },
+  { x1: 990, x2: 1220, y1: 22, y2: 6, sag: 70 },
+];
+/** Point on the quadratic curve of a hanging strand, t in 0…1. */
+function swagPoint(s: Swag, t: number) {
+  const cx = (s.x1 + s.x2) / 2;
+  const cy = Math.max(s.y1, s.y2) + s.sag * 2 - (s.y1 + s.y2) / 2;
+  const u = 1 - t;
+  return { x: u * u * s.x1 + 2 * u * t * cx + t * t * s.x2, y: u * u * s.y1 + 2 * u * t * cy + t * t * s.y2 };
+}
+
 export function StringLights() {
-  const n = 28;
-  const colours = ['#ffcc4d', '#ff4fd8', '#5ef0ff', '#47c9a8', '#fff4dc'];
-  const pts = Array.from({ length: n }, (_, i) => {
-    const t = i / (n - 1);
-    return { x: t * 1000, y: 14 + Math.sin(t * Math.PI * 3) ** 2 * 26 };
-  });
+  const bulbs = SWAGS.flatMap((s, si) =>
+    Array.from({ length: 11 }, (_, i) => {
+      const t = (i + 0.5) / 11;
+      return { ...swagPoint(s, t), key: `${si}-${i}`, twinkle: (si * 11 + i) % 5 === 0, delay: ((si * 7 + i * 3) % 10) / 4 };
+    }),
+  );
   return (
-    <svg className="absolute left-0 top-0 h-16 w-full min-w-[900px]" viewBox="0 0 1000 64" preserveAspectRatio="none" aria-hidden>
-      <polyline points={pts.map((p) => `${p.x},${p.y}`).join(' ')} fill="none" stroke="#0f0d22" strokeWidth="3" vectorEffect="non-scaling-stroke" />
-      {pts.map((p, i) => (
-        <rect key={i} x={p.x - 5} y={p.y + 2} width="10" height="12" fill={colours[i % colours.length]} stroke="#0f0d22" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+    <svg className="pointer-events-none absolute inset-x-0 top-0 h-[130px] w-full" viewBox="0 0 1200 130" preserveAspectRatio="xMidYMin slice" aria-hidden>
+      <defs>
+        <radialGradient id="bulb-glow">
+          <stop offset="0" stopColor="#ffe9a8" stopOpacity="0.75" />
+          <stop offset="0.45" stopColor="#ffcc4d" stopOpacity="0.25" />
+          <stop offset="1" stopColor="#ffcc4d" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      {SWAGS.map((s, i) => {
+        const cx = (s.x1 + s.x2) / 2;
+        const cy = Math.max(s.y1, s.y2) + s.sag * 2 - (s.y1 + s.y2) / 2;
+        return <path key={i} d={`M${s.x1} ${s.y1} Q${cx} ${cy} ${s.x2} ${s.y2}`} fill="none" stroke="#0f0d22" strokeWidth="2" />;
+      })}
+      {/* hooks */}
+      {[210, 430, 770, 990].map((x) => (
+        <rect key={x} x={x - 3} y={x === 430 || x === 770 ? 4 : 18} width="6" height="6" fill="#0f0d22" />
+      ))}
+      {bulbs.map((b) => (
+        <g key={b.key} className={b.twinkle ? 'bulb-twinkle' : undefined} style={b.twinkle ? { animationDelay: `${b.delay}s` } : undefined}>
+          <circle cx={b.x} cy={b.y + 9} r="16" fill="url(#bulb-glow)" />
+          <rect x={b.x - 2.5} y={b.y} width="5" height="5" rx="1" fill="#0f0d22" />
+          <ellipse cx={b.x} cy={b.y + 9.5} rx="4.5" ry="5.5" fill="#fff4dc" stroke="#0f0d22" strokeWidth="1.2" />
+          <ellipse cx={b.x - 1.4} cy={b.y + 8} rx="1.3" ry="1.8" fill="#ffffff" />
+        </g>
       ))}
     </svg>
   );
