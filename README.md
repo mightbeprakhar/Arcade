@@ -4,7 +4,7 @@ A pixel-art arcade of five classic games from game theory. The class plays each 
 
 **Play it live:** https://arcade-gt.vercel.app
 
-Every game runs the same loop: **Story → Play → Solve → Simulate → Debrief**. The last screen, **Humans vs Nash**, compares the class's results with the equilibrium in every game.
+Every game runs the same loop: **Story → Play → Solve → Simulate → Debrief**. The last screen, **Humans vs Nash**, compares the results with the equilibrium in every game.
 
 ## The five games
 
@@ -16,12 +16,6 @@ Every game runs the same loop: **Story → Play → Solve → Simulate → Debri
 | 4 | **The Waiting Game** | War of attrition; equilibrium as a constant quitting (hazard) rate λ = c/V; full rent dissipation; escalating and asymmetric costs |
 | 5 | **Startup Entry** | Sequential games with a chance move; credible vs non-credible threats; expected utility and risk attitude |
 
-
-## Presenter controls
-
-`→` / `Space` / `Page Down` next step · `←` / `Page Up` back · `R` reset game · `F` fullscreen · `P` Presenter Mode (larger text for projectors). Page Up / Page Down make a presentation clicker work. Inside a game the bottom bar has **Back** and **Reset**; everything else is on the keyboard.
-
-Results are kept per browser tab: a refresh keeps them, a new tab or window starts a fresh class session. **New session** on the home page clears them.
 
 ## How it's built
 
